@@ -1,0 +1,21 @@
+# Secretos (¡NUNCA SUBIR!)
+.env
+
+# Archivos temporales de Antigravity
+.tmp/
+logs/*.log
+logs/*.db
+_debug/
+
+# Carpetas de sistema / IDE
+.vscode/
+.DS_Store
+Thumbs.db
+node_modules/
+.npm/
+
+# Archivos de instalación bloqueados (seguridad)
+instalar.php
+instalar.php.locked
+instalar.php*
+*.locked
