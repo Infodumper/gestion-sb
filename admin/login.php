@@ -73,7 +73,7 @@
                 if (data.success) {
                     msg.classList.add('text-green-600');
                     msg.textContent = '¡Bienvenido! Redirigiendo...';
-                    setTimeout(() => window.location.href = 'index.php', 1500);
+                    setTimeout(() => window.location.replace('index.php'), 1500);
                 } else {
                     msg.classList.add('text-red-500');
                     msg.textContent = data.message;

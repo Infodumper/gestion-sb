@@ -15,26 +15,9 @@ require_once '../includes/security.php';
     <title>Panel Control | Stefy Barroso</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Libre+Baskerville:ital,wght@1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../styles/main.css?v=1.1">
+    <link rel="stylesheet" href="../styles/main.css?v=2.0">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<style>
-    .dashboard-grid { gap: 1rem !important; }
-    .chapa-card { 
-        min-height: 380px !important; 
-        padding: 1.25rem !important; 
-        border-radius: 2rem !important; 
-    }
-    .chapa-header { margin-bottom: 0.5rem !important; }
-    .chapa-icon-wrapper { 
-        width: 70px !important; 
-        height: 70px !important; 
-        font-size: 2.2rem !important; 
-        margin-bottom: 0.75rem !important; 
-    }
-    .chapa-title { font-size: 1.5rem !important; margin-bottom: 0.25rem !important; }
-    .chapa-link-item { padding: 0.85rem !important; border-radius: 1rem !important; font-size: 0.9rem !important; }
-</style>
 <body class="min-h-screen flex flex-col items-center pt-28 sm:pt-36 pb-4 px-4">
 
     <!-- Navbar Estilo Noa Mora -->
@@ -128,17 +111,11 @@ require_once '../includes/security.php';
 
 
     <!-- Modal para Apps (Iframe) -->
-    <div id="modalApp" class="hidden fixed inset-0 z-[100] bg-emerald-950/40 backdrop-blur-sm flex items-center justify-center p-0 sm:p-4 pt-20 sm:pt-24">
+    <div id="modalApp" class="hidden fixed inset-0 z-[300] bg-emerald-950/40 backdrop-blur-sm p-0 sm:p-4">
         <div class="w-full h-full max-w-7xl bg-white shadow-2xl relative animate-in fade-in zoom-in duration-300 sm:rounded-t-3xl flex flex-col">
-            <!-- Header Modal - Oculto porque las apps ya traen su propio cierre -->
-            <div class="hidden flex justify-end items-center p-2 border-b border-gray-100 h-12 bg-white sticky top-0 z-10">
-                <button onclick="closeAppModal()" class="w-8 h-8 bg-gray-50 flex items-center justify-center rounded-full text-xl hover:bg-gray-200 transition-all text-gray-400" title="Cerrar Ventana">
-                    &times;
-                </button>
-            </div>
-            <!-- Iframe de la App -->
+            <!-- Iframe de la App (Sin cabecera en el wrapper, la app trae la suya) -->
             <div class="flex-1 overflow-hidden">
-                <iframe id="iframeApp" src="" class="w-full h-full border-none"></iframe>
+                <iframe id="iframeApp" src="" class="w-full h-full border-none sm:rounded-3xl"></iframe>
             </div>
         </div>
     </div>
@@ -158,6 +135,20 @@ require_once '../includes/security.php';
             document.getElementById('iframeApp').src = '';
             document.body.style.overflow = 'auto';
         }
+
+        // --- Back Button Protection ---
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = function() {
+            if (!document.getElementById('modalApp').classList.contains('hidden')) {
+                closeAppModal();
+                window.history.pushState(null, null, window.location.href);
+            } else if (!document.getElementById('modalNuevoCliente')?.classList.contains('hidden')) {
+                closeClientModal();
+                window.history.pushState(null, null, window.location.href);
+            } else {
+                window.history.pushState(null, null, window.location.href);
+            }
+        };
     </script>
 </body>
 </html>

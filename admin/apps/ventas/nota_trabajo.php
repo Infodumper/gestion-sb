@@ -47,18 +47,11 @@ $fecha_hoy = date('d/m/Y');
 <body class="min-h-screen pt-4 sm:pt-12 pb-4 px-2 sm:px-10">
 
     <div class="max-w-4xl mx-auto bg-white sm:rounded-3xl p-0 sm:p-6 card-shadow border-0 sm:border border-emerald-50">
-        <!-- Header -->
-        <header class="flex justify-between items-center mb-4 px-2 sm:px-0">
-            <div class="flex items-center gap-4">
-                <h1 class="brand-title text-3xl sm:text-4xl" style="color: var(--color-marca-principal);">Pedido</h1>
-            </div>
-            <div class="flex items-center gap-4">
-                <span class="hidden sm:inline-block text-base font-bold px-3 py-1 bg-gray-50 rounded-lg text-emerald-900/40 uppercase tracking-widest text-[10px]" style="background-color: transparent;"><?php echo date('d/y'); ?></span>
-                <button onclick="window.parent.closeAppModal()" class="w-10 h-10 bg-white border border-gray-200 flex items-center justify-center rounded-full text-2xl hover:bg-gray-100 transition-all text-gray-500 shadow-sm" title="Cerrar">
-                    &times;
-                </button>
-            </div>
-        </header>
+        <!-- Cabecera Estilo Pop-up (Chapita) -->
+        <div class="app-header-premium modal-header-premium mb-4">
+            <h2 class="modal-title-premium italic">Pedido</h2>
+            <button type="button" onclick="window.parent.closeAppModal()" class="btn-close-premium" title="Cerrar">&times;</button>
+        </div>
 
         <!-- Formulario Info Base -->
         <div class="mb-2 px-4 sm:px-0">

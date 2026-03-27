@@ -1,4 +1,5 @@
 # Directiva: Arquitectura del Sistema (Consultora de Belleza)
+> **Skills Asociados:** `menu_navigator`, `app_orchestrator`, `dashboard_layout`
 
 ## Capa 1: Directiva (Objetivo y Alcance)
 
@@ -14,6 +15,8 @@ Establecer los estándares de arquitectura, diseño y navegación para el sistem
 * **Diseño ADN Chapitas**: Contenedores "chapa" y "chapitas" apiladas. Todo el CSS debe estar globalizado; nada de estilos flotantes.
 * **Menú y Navigations**: Bottom nav bars o menú principal táctil, controlando vistas desde JS sin refrescar si no es necesario.
 * **Pop-ups / Iframes / Vistas Dinámicas**: Mantener el contexto persistente cargando la info en el Dashboard central.
+* **Regla de la "X" (Cierre)**: Únicamente un botón de cierre. En vistas principales se ubica en la parte inferior. Solo pop-ups/modales llevan el botón en el encabezado superior derecho.
+* **Regla de las Subplacas**: Todo listado de entidades (personas, productos, registros) debe implementarse mediante tarjetas individuales blancas (`bg-white`), con bordes redondeados (`rounded-[1.5rem]`), sombra suave (`shadow-sm`) y separadas entre sí. Prohibido mostrar datos sueltos o texto flotante en listados.
 ### 2. Estrechamiento de Diseño (Design System)
 
 * **Centralización**: Todo el estilo visual vive en `/styles/main.css`.

@@ -1,4 +1,5 @@
 # Directiva: Módulo de Ventas y Pedidos
+> **Skills Asociados:** `sales_manager`, `catalog_manager`, `billing_helper`
 
 ## Capa 1: Directiva (Objetivo)
 

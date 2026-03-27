@@ -59,15 +59,14 @@ $proveedores = $pdo->query("SELECT IdProveedor, NombreComercial FROM proveedores
 </head>
 <body class="bg-gray-50 min-h-screen p-4 sm:p-8">
     <div class="max-w-6xl mx-auto">
-        <div class="flex justify-between items-center mb-8">
-            <h1 class="brand-title text-4xl text-emerald-900">Inventario</h1>
-            <div class="flex gap-2">
-                <button onclick="openModal()" class="bg-emerald-600 text-white px-6 py-2 rounded-xl font-bold shadow-lg hover:bg-emerald-700 transition-all flex items-center gap-2">
-                    <span>➕</span> NUEVO PRODUCTO
+        <!-- Cabecera Estilo Pop-up (Chapita) -->
+        <div class="app-header-premium modal-header-premium mb-4 flex justify-between items-center">
+            <h2 class="modal-title-premium italic">Inventario</h2>
+            <div class="flex items-center gap-4">
+                <button onclick="openModal()" class="bg-emerald-600 text-white px-4 py-1 rounded-xl font-bold shadow-sm hover:bg-emerald-700 transition-all text-sm">
+                    ➕ NUEVO
                 </button>
-                <button onclick="window.parent.closeAppModal()" class="w-10 h-10 bg-white border border-gray-200 flex items-center justify-center rounded-full text-2xl hover:bg-gray-100 transition-all text-gray-500 shadow-sm">
-                    &times;
-                </button>
+                <button type="button" onclick="window.parent.closeAppModal()" class="btn-close-premium" title="Cerrar">&times;</button>
             </div>
         </div>
 

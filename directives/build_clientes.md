@@ -1,4 +1,5 @@
 # Directiva: Gestión Integral de Clientes
+> **Skills Asociados:** `client_manager`, `premium_attention`, `client_validator`
 
 ## Capa 1: Directiva (Objetivo y Alcance)
 

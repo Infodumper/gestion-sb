@@ -38,9 +38,11 @@ Todo módulo del ecosistema debe converger obligatoriamente hacia las normativas
 
 ### 3.1. Estructura y Rendering
 - **Arquitectura SPA (Single Page Application)**: Dominio sobre los tiempos de carga en dispositivos móviles restringiendo imperativamente el uso indiscriminado de frameworks. Navegación enrutada asíncronamente.
-- **Topología UI "ADN Chapitas"**: Modelo de interfaz estandarizado con distribución en contenedores maestros ("chapas") y listados funcionales ("chapitas").
+- **Topología UI "ADN Chapitas"**: Modelo de interfaz estandarizado con distribución en contenedores maestros ("chapas") y listados funcionales ("chapitas" o subplacas).
+- **Regla de las Subplacas**: Está terminantemente prohibido mostrar datos sueltos o texto flotante en los listados. Cada entidad (Cliente, Producto, Venta, etc.) debe habitar dentro de su propia "subplaca": una tarjeta blanca (`bg-white`), con bordes redondeados (`rounded-[1.5rem]`), sombra suave (`shadow-sm`) y efectos de hover suaves.
 - **Hojas de Estilo Globales**: Centralización estricta (`colores.css`). Está prohibido explícitamente el uso de "inline styles", reglas flotantes sueltas y declaración de componentes con clases CSS redundantes no globalizadas.
 - **UX en Móviles**: Implementación reglamentaria de paneles de navegación inferior (Bottom Navbars), áreas táctiles optimizadas y soporte integral Claro/Oscuro. Empleo prioritario de **Tailwind CSS**.
+- **Regla de la "X" (Cierre)**: Se establece el estándar de un solo botón de cierre visible. En vistas principales y módulos integrados, la "X" debe ubicarse únicamente en la zona inferior (Bottom Navbar o acción persistente). Solo las ventanas secundarias de tipo **pop-up o modales** deben incorporar el botón "X" en la cinta del título (encabezado superior derecho del contenedor).
 
 ### 3.2. Localización y Refactorización
 - Idioma de despliegue, documentación de la UI y variables de salida debe encontrarse puramente en idioma español. Nomenclatura base de sistemas anglosajona admitida únicamente en la sintaxis profunda del código.

@@ -1,32 +1,30 @@
 <!-- Modal Editar Cliente -->
-<div id="modalEditarCliente" class="hidden fixed inset-0 z-[120] bg-indigo-950/40 backdrop-blur-sm flex items-center justify-center p-4">
+<div id="modalEditarCliente" class="hidden fixed inset-0 z-[300] bg-emerald-950/40 backdrop-blur-sm p-4">
     <div class="max-w-2xl w-full card-premium overflow-hidden animate-in fade-in zoom-in duration-300">
-        <!-- Close Button -->
-        <button onclick="closeModal('modalEditarCliente')" class="absolute top-6 right-6 text-gray-400 hover:text-gray-600 z-10 transition text-3xl">&times;</button>
-
-        <div class="bg-indigo-50 px-4 sm:px-8 py-6 sm:py-10 border-b border-indigo-100 text-center">
-            <h2 class="brand-title text-3xl sm:text-4xl mb-2 text-indigo-900">Editar Cliente</h2>
-            <p class="text-indigo-600 font-medium tracking-widest uppercase text-[10px] sm:text-xs">Actualización de datos maestros</p>
+        <div class="modal-header-premium">
+            <h2 class="modal-title-premium italic">Editar Cliente</h2>
+            <!-- Close Button -->
+            <button type="button" onclick="closeModal('modalEditarCliente')" class="btn-close-premium" title="Cerrar">&times;</button>
         </div>
 
-        <form id="formEditarCliente" class="p-6 sm:p-8 space-y-4 sm:space-y-6">
+        <form id="formEditarCliente" class="modal-form-container p-6 sm:p-8 space-y-4 sm:space-y-6">
             <input type="hidden" name="id_cliente" id="edit_id_cliente">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
                 <!-- Nombre -->
                 <div>
-                    <label class="block text-sm font-bold text-indigo-900 uppercase mb-2">Nombre</label>
+                    <label class="block text-sm font-bold text-emerald-950 uppercase mb-2">Nombre</label>
                     <input type="text" name="nombre" id="edit_nombre" class="input-premium" required>
                 </div>
                 <!-- Apellido -->
                 <div>
-                    <label class="block text-sm font-bold text-indigo-900 uppercase mb-2">Apellido</label>
+                    <label class="block text-sm font-bold text-emerald-950 uppercase mb-2">Apellido</label>
                     <input type="text" name="apellido" id="edit_apellido" class="input-premium" required>
                 </div>
                 
                 <!-- Teléfono -->
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Teléfono</label>
-                    <input type="text" name="telefono" id="edit_telefono" class="input-premium" required>
+                    <input type="text" name="telefono" id="edit_telefono" class="input-premium">
                 </div>
                 <!-- DNI -->
                 <div>
@@ -55,12 +53,12 @@
                 <!-- Options -->
                 <div class="md:col-span-2 flex justify-between pt-4">
                     <label class="inline-flex items-center cursor-pointer group">
-                        <input type="checkbox" name="Promociones" id="edit_promociones" value="1" class="w-5 h-5 text-indigo-600 rounded">
-                        <span class="ml-3 text-sm text-indigo-900 font-bold">Recibir promociones</span>
+                        <input type="checkbox" name="Promociones" id="edit_promociones" value="1" class="w-5 h-5 text-emerald-600 rounded">
+                        <span class="ml-3 text-sm text-emerald-900 font-bold">Recibir promociones</span>
                     </label>
                     <label class="inline-flex items-center cursor-pointer group">
-                        <input type="checkbox" name="estado" id="edit_estado" value="1" class="w-5 h-5 text-indigo-600 rounded">
-                        <span class="ml-3 text-sm text-indigo-900 font-bold">Cliente Activo</span>
+                        <input type="checkbox" name="estado" id="edit_estado" value="1" class="w-5 h-5 text-emerald-600 rounded">
+                        <span class="ml-3 text-sm text-emerald-900 font-bold">Cliente Activo</span>
                     </label>
                 </div>
             </div>
@@ -132,7 +130,7 @@ document.getElementById('formEditarCliente').addEventListener('submit', function
                 title: '¡Actualizado!',
                 text: data.message,
                 icon: 'success',
-                confirmButtonColor: '#f28d1a'
+                confirmButtonColor: '#00a876'
             }).then(() => {
                 location.reload();
             });
@@ -141,7 +139,7 @@ document.getElementById('formEditarCliente').addEventListener('submit', function
                 title: 'Atención',
                 text: data.message,
                 icon: 'warning',
-                confirmButtonColor: '#f28d1a'
+                confirmButtonColor: '#00a876'
             });
             btn.disabled = false;
             btn.innerHTML = 'SINCRONIZAR CAMBIOS 🔄';

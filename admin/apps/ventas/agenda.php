@@ -58,11 +58,10 @@ try {
 </head>
 <body class="bg-gray-50 min-h-screen p-4 sm:p-8">
     <div class="max-w-6xl mx-auto">
-        <div class="flex justify-between items-center mb-8">
-            <h1 class="brand-title text-4xl text-emerald-900">Control de Ventas</h1>
-            <button onclick="window.parent.closeAppModal()" class="w-10 h-10 bg-white border border-gray-200 flex items-center justify-center rounded-full text-2xl hover:bg-gray-100 transition-all text-gray-500 shadow-sm">
-                &times;
-            </button>
+        <!-- Cabecera Estilo Pop-up (Chapita) -->
+        <div class="app-header-premium modal-header-premium mb-4">
+            <h2 class="modal-title-premium italic">Control de Ventas</h2>
+            <button type="button" onclick="window.parent.closeAppModal()" class="btn-close-premium" title="Cerrar">&times;</button>
         </div>
 
         <!-- Buscador -->
