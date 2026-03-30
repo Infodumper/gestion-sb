@@ -58,7 +58,7 @@ try {
 </head>
 <body class="bg-gray-50 min-h-screen p-4 sm:p-8">
     <div class="max-w-6xl mx-auto">
-        <!-- Cabecera Estilo Pop-up (Chapita) -->
+        <!-- Cabecera Estilo Pop-up (Subplaca) -->
         <div class="app-header-premium modal-header-premium mb-4">
             <h2 class="modal-title-premium italic">Control de Ventas</h2>
             <button type="button" onclick="window.parent.closeAppModal()" class="btn-close-premium" title="Cerrar">&times;</button>

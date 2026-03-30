@@ -1,4 +1,4 @@
-# Consultora Management System
+# Gestion SB - Sistema de Gestión
 
 Plataforma de ingeniería automatizada para la gestión de ventas, clientes y logística. Diseñada bajo estándares de alta disponibilidad y arquitectura de capas modular.
 
@@ -7,7 +7,7 @@ El sistema opera sobre una topología de **4 capas** (Directivas, Orquestación,
 
 ## 📱 Frontend SPA & UX
 - **Arquitectura**: Single Page Application (SPA) optimizada para dispositivos móviles.
-- **Diseño**: Framework visual fundamentado en el estándar **ADN Chapitas**.
+- **Diseño**: Framework visual fundamentado en la **Arquitectura de Placas Independientes de Información**.
 - **Estilos**: Tailwind CSS y variables globales para consistencia estética.
 
 ## 🛠️ Tecnologías Primarias
@@ -23,4 +23,4 @@ El sistema opera sobre una topología de **4 capas** (Directivas, Orquestación,
 - `/utils`: Herramientas de soporte y logging.
 
 ---
-© 2026 Stefy Barroso - Consultora Tecnológica
+© 2026 Stefy Barroso - Gestion SB

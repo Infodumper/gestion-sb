@@ -47,7 +47,7 @@ $fecha_hoy = date('d/m/Y');
 <body class="min-h-screen pt-4 sm:pt-12 pb-4 px-2 sm:px-10">
 
     <div class="max-w-4xl mx-auto bg-white sm:rounded-3xl p-0 sm:p-6 card-shadow border-0 sm:border border-emerald-50">
-        <!-- Cabecera Estilo Pop-up (Chapita) -->
+        <!-- Cabecera Estilo Pop-up (Subplaca) -->
         <div class="app-header-premium modal-header-premium mb-4">
             <h2 class="modal-title-premium italic">Pedido</h2>
             <button type="button" onclick="window.parent.closeAppModal()" class="btn-close-premium" title="Cerrar">&times;</button>

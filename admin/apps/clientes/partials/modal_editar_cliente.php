@@ -1,5 +1,5 @@
 <!-- Modal Editar Cliente -->
-<div id="modalEditarCliente" class="hidden fixed inset-0 z-[300] bg-emerald-950/40 backdrop-blur-sm p-4">
+<div id="modalEditarCliente" class="hidden fixed inset-0 z-[300] bg-emerald-950/40 backdrop-blur-sm p-4 flex items-center justify-center">
     <div class="max-w-2xl w-full card-premium overflow-hidden animate-in fade-in zoom-in duration-300">
         <div class="modal-header-premium">
             <h2 class="modal-title-premium italic">Editar Cliente</h2>
@@ -73,9 +73,13 @@
 </div>
 
 <script>
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
 function openEditClient(id) {
     const isInsideApps = window.location.pathname.includes('apps/clientes');
-    const ajaxPath = isInsideApps ? 'ajax_get_client_card.php' : 'apps/clientes/ajax_get_client_card.php';
+    // Si estamos en atencion_cliente.php (CRM) que está en apps/clientes/, el path es ajax_...
+    // Si estamos en ver_clientes.php (Directorio) que también está en apps/clientes/, también.
+    const ajaxPath = 'ajax_get_client_card.php'; // Siempre relativo al script actual si ambos están en la misma carpeta
 
     fetch(ajaxPath + '?id=' + id)
     .then(r => r.json())
@@ -105,7 +109,7 @@ function openEditClient(id) {
     })
     .catch(err => {
         console.error(err);
-        Swal.fire('Error', 'No se pudo cargar la ficha del cliente', 'error');
+        Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo cargar la ficha del cliente' });
     });
 }
 
@@ -116,8 +120,7 @@ document.getElementById('formEditarCliente').addEventListener('submit', function
     btn.innerHTML = 'SINCRONIZANDO... ⏳';
 
     const formData = new FormData(this);
-    const isInsideApps = window.location.pathname.includes('apps/clientes');
-    const ajaxPath = isInsideApps ? 'ajax_save_client.php' : 'apps/clientes/ajax_save_client.php';
+    const ajaxPath = 'ajax_save_client.php';
 
     fetch(ajaxPath, {
         method: 'POST',

@@ -1,6 +1,6 @@
 <?php
 /**
- * Portero de la Aplicación - Consultora de Belleza
+ * Portero de la Aplicación - Gestion SB
  * Redirecciona al Dashboard principal en la carpeta admin/
  */
 

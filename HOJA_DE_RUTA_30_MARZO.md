@@ -1,11 +1,11 @@
-# HOJA DE RUTA: 24 DE MARZO - PRUEBA INTEGRAL DE CLIENTES Y NAVEGACIÓN
+# HOJA DE RUTA: 30 DE MARZO - PRUEBA INTEGRAL DE CLIENTES Y NAVEGACIÓN
 
-## 📅 FECHA: 24/03/2026
+## 📅 FECHA: 30/03/2026
 
 ---
 
 ### 🎯 OBJETIVO DE LA PRUEBA
-Validar que el Sistema de Gestión de Stefy Barroso ha alcanzado el estándar profesional ("ADN Chapitas"), con una navegación robusta en móviles y una base de datos flexible que permite campos opcionales sin errores de duplicidad.
+Validar que el Sistema de Gestión de Stefy Barroso ha alcanzado el estándar profesional (**Arquitectura de Placas Independientes de Información**), con una navegación robusta en móviles y una base de datos flexible que permite campos opcionales sin errores de duplicidad.
 
 ---
 
@@ -23,9 +23,10 @@ Para que todo funcione, debes subir estos archivos a sus carpetas correspondient
 
 ---
 
-### 🛠️ 2. PASOS PARA EL TEST MAÑANA
+### 🛠️ 2. PASOS PARA EL TEST
+*(Para probar directamente en Celular y PC)*
 
-1.  **Reparar Base de Datos (Primer paso):**
+1.  **Reparar Base de Datos (Si no lo hiciste aún):**
     *   Visita: `tuweb.com/admin/apps/clientes/fix_db_null.php`.
     *   Si ves el mensaje verde de **"¡Éxito!"**, la base de datos ya es opcional.
     *   **⚠️ Borra este archivo del hosting tras ejecutarlo.**
@@ -33,8 +34,8 @@ Para que todo funcione, debes subir estos archivos a sus carpetas correspondient
 2.  **Verificar Navegación Móvil:**
     *   Abre el panel desde tu celular.
     *   Toca en "Nuevo Cliente".
-    *   **Check:** ¿Ves el título "Nuevo Cliente" y la X para cerrar arriba de todo? (Si es así, el z-index funcionó).
-    *   **Check:** Toca el botón "atrás" de tu móvil con el modal abierto. ¿Se cerró el modal en lugar de sacarte de la web? (Si es así, el "Back Button Guard" funcionó).
+    *   **Check:** ¿Ves el título "Nuevo Cliente" y la X para cerrar ubicada correctamente.
+    *   **Check:** Toca el botón "atrás" de tu móvil con el modal abierto. ¿Se cerró el modal en lugar de sacarte de la web?
 
 3.  **Verificar Lógica de Datos:**
     *   Intenta crear un cliente **SIN** teléfono. ¿Se guardó?
@@ -42,12 +43,13 @@ Para que todo funcione, debes subir estos archivos a sus carpetas correspondient
     *   Intenta crear dos clientes con un DNI repetido. ¿Lanzó el aviso de "Ya registrado"?
 
 4.  **Control de Calidad Final:**
-    *   Visita: `tuweb.com/admin/apps/clientes/test_clientes_logic.php`.
-    *   Si todos los puntos salen en **VERDE ✅**, la tarea de Clientes está oficialmente TERMINADA.
+    *   Obtén confirmación de 100% éxito y que las "Subplacas" de los clientes aparecen sin problemas en la vista general. 
 
 ---
 
-### 🤖 NOTA DEL ASISTENTE
-El sistema ya sigue la **Regla 1:3** (1 Directiva : 3 Skills por módulo). Mañana estaremos listos para empezar el Módulo de Ventas con esta misma robustez.
+### 🤖 NOTA PARA EL PULL REQUEST (PR)
+El sistema ha migrado a la **estrategia de 5 Súper-Skills consolidadas**, simplificando todo bajo `GEMINI.md` y depurando archivos basuras.
+Hoy, tras hacer el test de la UI y grabar la capa visual perfecta, puedes armar el PR hacia `main`.
+Una vez mergeado, estaremos oficialmente listos para lanzar todo el poder sobre el Módulo de **Ventas y Catálogo**.
 
-**¡Buen descanso! Nos vemos mañana para el despliegue final.**
+**¡Mucho éxito con el test de mañana!**

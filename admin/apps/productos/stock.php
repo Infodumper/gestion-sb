@@ -59,7 +59,7 @@ $proveedores = $pdo->query("SELECT IdProveedor, NombreComercial FROM proveedores
 </head>
 <body class="bg-gray-50 min-h-screen p-4 sm:p-8">
     <div class="max-w-6xl mx-auto">
-        <!-- Cabecera Estilo Pop-up (Chapita) -->
+        <!-- Cabecera Estilo Pop-up (Subplaca) -->
         <div class="app-header-premium modal-header-premium mb-4 flex justify-between items-center">
             <h2 class="modal-title-premium italic">Inventario</h2>
             <div class="flex items-center gap-4">

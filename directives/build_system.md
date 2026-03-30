@@ -1,4 +1,4 @@
-# Directiva: Arquitectura del Sistema (Consultora de Belleza)
+# Directiva: Arquitectura del Sistema (Gestion SB)
 > **Skills Asociados:** `menu_navigator`, `app_orchestrator`, `dashboard_layout`
 
 ## Capa 1: Directiva (Objetivo y Alcance)
@@ -12,7 +12,7 @@ Establecer los estándares de arquitectura, diseño y navegación para el sistem
 ### 1. Navegación "App-Like" (NORMA OBLIGATORIA ESTRUCTURA)
 
 * **SPA y Mobile-First**: Mantener una estructura SPA simple, sin frameworks pesados, priorizando el uso y visualización desde celulares.
-* **Diseño ADN Chapitas**: Contenedores "chapa" y "chapitas" apiladas. Todo el CSS debe estar globalizado; nada de estilos flotantes.
+* **Arquitectura de Placas Independientes de Información**: Contenedores de tipo "Placa Maestra" y "Subplacas" apiladas. Todo el CSS debe estar globalizado; nada de estilos flotantes.
 * **Menú y Navigations**: Bottom nav bars o menú principal táctil, controlando vistas desde JS sin refrescar si no es necesario.
 * **Pop-ups / Iframes / Vistas Dinámicas**: Mantener el contexto persistente cargando la info en el Dashboard central.
 * **Regla de la "X" (Cierre)**: Únicamente un botón de cierre. En vistas principales se ubica en la parte inferior. Solo pop-ups/modales llevan el botón en el encabezado superior derecho.

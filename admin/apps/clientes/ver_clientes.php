@@ -90,8 +90,8 @@ function make_sort_link($col, $label, $current_col, $current_order, $current_fil
     </style>
 
     <div class="max-w-7xl mx-auto">
-        <!-- MASTER CHAPITA: Directorio de Clientes -->
-        <div class="master-chapita bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-emerald-100 flex flex-col mb-10 animate-in fade-in duration-300">
+        <!-- PLACA MAESTRA: Directorio de Clientes -->
+        <div class="master-placa bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-emerald-100 flex flex-col mb-10 animate-in fade-in duration-300">
             
             <!-- Cabecera Maestra Compacta -->
             <div class="px-8 py-5 border-b border-emerald-50 flex justify-between items-center bg-gradient-to-r from-emerald-50 to-white">
@@ -123,7 +123,7 @@ function make_sort_link($col, $label, $current_col, $current_order, $current_fil
                     </form>
                 </div>
 
-                <!-- Listado en Subplacas (Regla de las Subplacas) -->
+                <!-- Listado en Subplacas (Sistema de Placas Independientes) -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <?php if (empty($clientes)): ?>
                         <div class="col-span-full py-20 text-center bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-200">

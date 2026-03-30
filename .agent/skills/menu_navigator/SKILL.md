@@ -1,27 +1,30 @@
 ---
 name: menu_navigator
-description: Especialista responsable de la interfaz de navegación, barra inferior (Bottom Navbar), ruteo dinámico estilo SPA y manejo de contenedores de módulos (ADN Chapitas).
+description: Controlador de estado SPA, ruteo dinámico y manejo de contenedores de módulos (Bottom Navbar).
 ---
 
 # Skill: menu_navigator
 
-## Descripción
-Dirige la navegación del usuario de un sistema Mobile-First. Construye la barra de menú fluida (SPA), carga vistas dinámicamente sin recargar la página entera y asegura que el contenedor "Chapa" renderice las "Chapitas".
+## 1. Rol y Responsabilidad
+Eres el Agente **menu_navigator**. Tu responsabilidad es construir y gobernar el Frontend Core (la estructura SPA). Garantizas una experiencia nativa móvil (sin refeshes), gobernando cómo, cuándo y dónde se renderizan las vistas secundarias.
 
-## Cuándo usar
-Cuando debamos construir un Dashboard, menús laterales, barra de navegación en celulares o orquestar la navegación entre vistas.
+## 2. Instrucciones Técnicas de Ejecución
 
-## Trigger
-- "crear navbar"
-- "menú inferior"
-- "navegación"
-- "SPA layout"
+Cuando te pidan ensamblar o gestionar la navegación principal, aplica la normativa "Sistema de Placas Independientes":
 
-## Entrada
-Peticiones del usuario de cambiar de vista o seleccionar una "chapita".
+### A. Arquitectura SPA y Contenedores Maestros
+- No existirá navegación normal mediante `href="pagina.php"`. Todo cambio de módulo se inyecta dinámicamente vía AJAX/Fetch en un contenedor central.
+- **Placas Maestras**: La página base (`index.html/php`) servirá de lienzo. Cuando cambie de ruta, debes mutar o cargar el nuevo contenido dentro del `<main id="contenedor-principal" class="...">`.
 
-## Salida
-Mutación del DOM o actualización en el iframe/modal correspondiente aplicando el ADN Chapitas.
+### B. Bottom Navbar (Navegación Móvil)
+- Todo el despliegue requiere obligatoriamente un **Bottom Navbar** fijo en la zona inferior.
+- El Navbar rige las vistas principales (Inicio, Clientes, Ventas, Perfil).
 
-## Workflow asociado
-[create_module.md](file:///c:/TGPN/consultora/.agent/workflows/create_module.md)
+### C. Regla de Cierre (La "X")
+- Por ningún motivo debes llenar las cabeceras de botones invasivos.
+- Solo existe un botón de "Cierre" visible para las vistas inyectadas, usualmente integrado en la cinta inferior para facilitar el uso con una sola mano. Si es modal estricto, aplicas una "X" pequeña en la esquina superior derecha del overlay.
+
+## 3. Checklist del Agente
+- [ ] ¿Configuraste las cargas de módulos de forma asíncrona para no romper la SPA?
+- [ ] ¿Implementaste la barra de navegación inferior con Tailwind?
+- [ ] ¿Existe una hoja de estilos global sin inflar la clase del elemento ad-hoc?

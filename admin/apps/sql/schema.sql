@@ -70,10 +70,12 @@ CREATE TABLE IF NOT EXISTS Productos (
 CREATE TABLE IF NOT EXISTS Pedidos (
     IdPedido INT AUTO_INCREMENT PRIMARY KEY,
     IdCliente INT NOT NULL,
+    IdUsuario INT NOT NULL COMMENT 'Usuario que registró el pedido',
     Fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
     Total DECIMAL(10, 2) DEFAULT 0.00,
     Estado TINYINT DEFAULT 1 COMMENT '1: Pendiente, 2: Pagado, 3: Entregado',
-    CONSTRAINT fk_cliente_pedido FOREIGN KEY (IdCliente) REFERENCES Clientes(IdCliente) ON DELETE CASCADE
+    CONSTRAINT fk_cliente_pedido FOREIGN KEY (IdCliente) REFERENCES Clientes(IdCliente) ON DELETE CASCADE,
+    CONSTRAINT fk_usuario_pedido FOREIGN KEY (IdUsuario) REFERENCES DbLogin(IdUsuario)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 6. Table: ItemsPedido

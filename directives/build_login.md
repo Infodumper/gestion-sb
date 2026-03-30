@@ -30,3 +30,15 @@ Garantizar un acceso seguro, biométrico y fluido al panel de gestión de Stefy 
 
 * **Logging de Intentos**: Registro de accesos fallidos y exitosos en la auditoría del sistema.
 * **Alertas**: Feedback inmediato mediante SweetAlert2 para errores de credenciales o de red.
+
+## Capa 5: Base de Datos (Esquema y Relaciones)
+
+Tabla centralizada de control de acceso.
+
+### Tabla: `DbLogin`
+- **PK**: `IdUsuario` (INT, AUTO_INCREMENT)
+- **Campos críticos**:
+  - `Usuario`: (VARCHAR 50, **UNIQUE NOT NULL**). Generalmente formato mail/infodumper.
+  - `Clave`: (VARCHAR 255). *Mandatario guardar como BCRYPT password_hash(). NUNCA texto plano según ISO27001.*
+  - `Rol`: VARCHAR(20) por defecto 'admin'.
+  - `Estado`: Controla suspensiones. `1` activo, `0` baja.

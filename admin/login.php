@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | Consultora de Belleza</title>
+    <title>Login | Gestion SB</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Libre+Baskerville:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../styles/main.css?v=1.1">
@@ -25,7 +25,7 @@
             <img src="../styles/images/logo_tmc_sin_fondo.png" alt="Logo" class="h-44 sm:h-56 w-auto mx-auto mb-0 drop-shadow-lg">
             
             <h1 class="brand-font text-[2.1rem] sm:text-[2.4rem] text-emerald-600 mb-1 leading-tight">Stefy Barroso</h1>
-            <p class="text-emerald-950/70 font-bold uppercase tracking-widest text-[12.5px]">Consultora de Belleza</p>
+            <p class="text-emerald-950/70 font-bold uppercase tracking-widest text-[12.5px]">Gestion SB</p>
         </div>
 
         <form id="loginForm" class="space-y-6">

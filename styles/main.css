@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
 
 :root {
-    /* Paleta Verde (Tu Mejor Consultora) */
+    /* Paleta Verde (Gestion SB) */
     --color-fondo-pagina: #f0fdf4; /* Verde agua/menta muy clarito (Green-50) */
     --color-fondo-tarjeta: #ffffff;
     
@@ -202,7 +202,7 @@ body {
 }
 
 /* -------------------------------------------------------------------------- */
-/* ESQUEMA DE CHAPITAS (Estilo Noa Mora - Adaptado Premium) */
+/* ARQUITECTURA DE PLACAS INDEPENDIENTES DE INFORMACIÓN (Estilo Premium Adaptado) */
 /* -------------------------------------------------------------------------- */
 .dashboard-grid {
     display: grid;
@@ -248,8 +248,8 @@ body {
     background-color: #f0fdf4 !important; 
 }
 
-/* List Item (Chapita) Styling */
-.chapita-item {
+/* List Item (Subplaca) Styling */
+.subplaca-item {
     background: white;
     border-radius: 1.5rem;
     padding: 1.25rem;
@@ -261,14 +261,14 @@ body {
 }
 
 @media (min-width: 640px) {
-    .chapita-item {
+    .subplaca-item {
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
     }
 }
 
-.chapita-accent {
+.subplaca-accent {
     position: absolute;
     left: 0;
     top: 0;
@@ -278,7 +278,7 @@ body {
     border-radius: 1.5rem 0 0 1.5rem;
 }
 
-.chapita-item:hover {
+.subplaca-item:hover {
     transform: scale(1.01);
     box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.1);
 }
@@ -401,7 +401,7 @@ body {
     color: white !important;
     border: none !important;
 }
-/* --- Sistema de Subplacas (ADN Consultora) --- */
+/* --- Sistema de Subplacas (ADN Gestion SB) --- */
 .subplaca-adn {
     background: white !important;
     border-radius: 1.8rem !important;
