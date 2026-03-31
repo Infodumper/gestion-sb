@@ -61,7 +61,7 @@ $nombre_mes = get_month_name($mes_actual_num);
                 <button onclick="window.parent.closeAppModal()" class="btn-close-premium" title="Cerrar">&times;</button>
             </div>
 
-            <div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="p-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- COLUMNA CUMPLEAÑOS -->
                 <div class="flex flex-col bg-gray-100/30 rounded-[2rem] overflow-hidden border border-gray-100">
                     <div class="px-6 py-4 flex justify-between items-center bg-rose-500 text-white font-bold uppercase tracking-widest text-xs">
@@ -129,7 +129,7 @@ $nombre_mes = get_month_name($mes_actual_num);
                     </div>
                 </div>
 
-                <!-- COLUMNA DIFUSIÓN -->
+                <!-- COLUMNA DIFUSIÓN (OCULTA A PEDIDO)
                 <div class="flex flex-col bg-gray-100/30 rounded-[2rem] overflow-hidden border border-gray-100">
                     <div class="px-6 py-4 flex justify-between items-center bg-emerald-500 text-white font-bold uppercase tracking-widest text-xs">
                         <span>DIFUSIÓN</span>
@@ -140,6 +140,7 @@ $nombre_mes = get_month_name($mes_actual_num);
                         <button onclick="copyPromos()" class="btn-premium w-full !rounded-xl py-3">COPIAR LISTA</button>
                     </div>
                 </div>
+                -->
             </div>
         </div>
     </div>

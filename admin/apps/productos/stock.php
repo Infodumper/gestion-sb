@@ -106,57 +106,8 @@ $proveedores = $pdo->query("SELECT IdProveedor, NombreComercial FROM proveedores
         </div>
     </div>
 
-    <!-- Modal Formulario -->
-    <div id="modalProd" class="hidden fixed inset-0 z-[100] bg-emerald-950/40 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-                <h2 id="modalTitle" class="brand-title text-2xl text-emerald-900">Nuevo Producto</h2>
-                <button onclick="closeModal()" class="text-3xl text-gray-400 hover:text-gray-600">&times;</button>
-            </div>
-            <form method="POST" class="p-8 space-y-4">
-                <input type="hidden" name="action" value="save">
-                <input type="hidden" name="id" id="prod_id" value="0">
-                
-                <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Código de Producto</label>
-                    <input type="text" name="codigo" id="prod_codigo" class="w-full bg-gray-50 border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all" placeholder="Ej: CRAv01">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Nombre del Producto</label>
-                    <input type="text" name="nombre" id="prod_nombre" required class="w-full bg-gray-50 border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Descripción</label>
-                    <textarea name="descripcion" id="prod_descripcion" class="w-full bg-gray-50 border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all resize-none h-20"></textarea>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Precio</label>
-                        <input type="number" step="0.01" name="precio" id="prod_precio" required class="w-full bg-gray-50 border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Stock Inicial</label>
-                        <input type="number" name="stock" id="prod_stock" required class="w-full bg-gray-50 border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Proveedor</label>
-                    <select name="id_proveedor" id="prod_id_proveedor" class="w-full bg-gray-50 border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all appearance-none">
-                        <option value="">Seleccionar Proveedor...</option>
-                        <?php foreach($proveedores as $prov): ?>
-                            <option value="<?= $prov['IdProveedor'] ?>"><?= htmlspecialchars($prov['NombreComercial']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                
-                <div class="pt-4">
-                    <button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:opacity-90 active:scale-95 transition-all uppercase tracking-widest">
-                        Guardar Producto
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+    <!-- Modales -->
+    <?php include 'partials/modal_nuevo_producto.php'; ?>
 
     <!-- Form de eliminación oculta -->
     <form id="formDelete" method="POST" class="hidden">
@@ -165,22 +116,6 @@ $proveedores = $pdo->query("SELECT IdProveedor, NombreComercial FROM proveedores
     </form>
 
     <script>
-        function openModal() {
-            document.getElementById('modalTitle').innerText = 'Nuevo Producto';
-            document.getElementById('prod_id').value = '0';
-            document.getElementById('prod_codigo').value = '';
-            document.getElementById('prod_nombre').value = '';
-            document.getElementById('prod_descripcion').value = '';
-            document.getElementById('prod_precio').value = '';
-            document.getElementById('prod_stock').value = '0';
-            document.getElementById('prod_id_proveedor').value = '';
-            document.getElementById('modalProd').classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('modalProd').classList.add('hidden');
-        }
-
         function editProducto(p) {
             document.getElementById('modalTitle').innerText = 'Editar Producto';
             document.getElementById('prod_id').value = p.IdProducto;
