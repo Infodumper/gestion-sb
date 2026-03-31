@@ -15,7 +15,7 @@ Fomentar la lealtad y el valor de vida del cliente (LTV) mediante un seguimiento
     * **Criterio de Recurrencia**: Clientes con la mayor cantidad de compras acumuladas o servicios recientes.
     * **Acción Mensual (✓)**: Se permite un "Check" mensual para registrar la difusión de promociones, previniendo duplicados durante el mismo ciclo.
 3. **Motor de Difusión (Bulk Messaging)**:
-    * **Extracción**: Copiado rápido de listas (Nombre/Teléfono) para integración con herramientas externas.
+    * **Extracción**: Copiado rápido de listas (Nombre/Teléfono) para integración con herramientas externas. *(Nota: Sección oculta actualmente en la interfaz, pero preservada en el código).*
 
 ## Capa 3: Ejecución (Arquitectura Técnica)
 

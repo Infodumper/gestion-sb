@@ -16,13 +16,17 @@ Administrar el ciclo de vida de los pedidos, garantizando el registro preciso de
     * `1`: Pendiente / Registrado.
     * `2`: Pagado.
     * `3`: Entregado / Finalizado.
+3. **Regla de Stock Mixto**:
+    * **Validación**: No se permite incluir productos con stock y sin stock en el mismo pedido.
+    * **Excepción**: Si TODOS los productos del pedido son "Sin Stock", se permite el registro.
+    * **Aviso**: Si hay mezcla, el sistema bloquea el guardado con el mensaje: "Los productos sin stock se tienen que grabar en notas separadas".
 
 ## Capa 3: Ejecución (Implementación)
 
 *   **Nomenclatura**: Uso estricto de tablas `Pedidos` e `ItemsPedido`.
 *   **Archivos Clave**:
     *   `index.php`: Listado maestro de pedidos con filtros por fecha y cliente.
-    *   `nuevo_pedido.php`: Formulario dinámico con soporte para autocompletado.
+    *   `nuevo_pedido.php` (nota_trabajo.php): Formulario dinámico con soporte para autocompletado y acceso directo a creación de productos.
     *   `ajax_save_pedido.php`: Engine de guardado con manejo de transacciones PDO (`beginTransaction`, `commit`).
     *   `ver_pedido.php`: Vista de detalle y generación de comprobante visual.
 

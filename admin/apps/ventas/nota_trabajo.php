@@ -132,9 +132,14 @@ $fecha_hoy = date('d/m/Y');
 
         <!-- Footer Acciones -->
         <div class="flex flex-col sm:flex-row justify-between items-center bg-gray-50/50 sm:rounded-3xl p-4 sm:p-8 gap-4 mt-2 border-t sm:border-0 border-gray-100">
-            <button onclick="agregarFila()" class="w-full sm:w-auto px-6 py-3 bg-white border border-gray-200 rounded-xl text-sm font-bold text-emerald-600 active:bg-gray-50 transition-all shadow-sm flex items-center justify-center gap-2 tracking-tight">
-                <span>➕</span> AGREGAR PRODUCTO
-            </button>
+            <div class="flex gap-2 w-full sm:w-auto">
+                <button onclick="agregarFila()" class="flex-1 sm:w-auto px-6 py-3 bg-white border border-gray-200 rounded-xl text-sm font-bold text-emerald-600 active:bg-gray-50 transition-all shadow-sm flex items-center justify-center gap-2 tracking-tight">
+                    <span>➕</span> AGREGAR ITEM
+                </button>
+                <button onclick="openModal()" class="flex-1 sm:w-auto px-6 py-3 bg-emerald-50 border border-emerald-100 rounded-xl text-sm font-bold text-emerald-700 active:bg-emerald-100 transition-all shadow-sm flex items-center justify-center gap-2 tracking-tight">
+                    <span>🛍️</span> NUEVO PRODUCTO
+                </button>
+            </div>
             <div class="flex flex-col items-center sm:items-end w-full sm:w-auto">
                 <span class="text-4xl font-bold text-emerald-950" id="total_footer">$ 0,00</span>
             </div>
@@ -363,12 +368,16 @@ $fecha_hoy = date('d/m/Y');
             const items = [];
             let stockWarning = false;
             let warningProducts = [];
+            
+            let countConStock = 0;
+            let countSinStock = 0;
 
             rows.forEach(row => {
                 const idS = row.querySelector('.servicio-id').value;
                 const cant = parseInt(row.querySelector('.input-cantidad').value) || 0;
                 const prec = row.querySelector('.input-precio').value;
-                const stock = parseInt(row.querySelector('.input-stock').value) || 0;
+                const stockVal = row.querySelector('.input-stock').value;
+                const stock = (stockVal === '-' || stockVal === '') ? 0 : parseInt(stockVal);
                 const nombre = row.querySelector('.input-servicio').value;
                 
                 if(idS && cant > 0) {
@@ -377,6 +386,13 @@ $fecha_hoy = date('d/m/Y');
                         cantidad: cant,
                         precio: prec
                     });
+
+                    // Regla de Stock Mixto: Identificar si el PRODUCTO tiene stock o no
+                    if (stock > 0) {
+                        countConStock++;
+                    } else {
+                        countSinStock++;
+                    }
                     
                     if (cant > stock) {
                         stockWarning = true;
@@ -387,6 +403,12 @@ $fecha_hoy = date('d/m/Y');
 
             if(items.length === 0) {
                 Swal.fire('Atención', 'Debe cargar al menos un producto válido', 'warning');
+                return;
+            }
+
+            // Nueva NORMA: No permitir mezclar productos con y sin stock si hay al menos uno con stock
+            if (countConStock > 0 && countSinStock > 0) {
+                Swal.fire('Atención', 'Los productos sin stock se tienen que grabar en notas separadas', 'warning');
                 return;
             }
 
@@ -468,5 +490,7 @@ $fecha_hoy = date('d/m/Y');
             }
         });
     </script>
+    <!-- Modales -->
+    <?php include '../productos/partials/modal_nuevo_producto.php'; ?>
 </body>
 </html>

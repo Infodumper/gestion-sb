@@ -7,7 +7,7 @@ Explica de manera concisa qué modificaciones introduces con este Pull Request y
 - [ ] El cambio respeta la **Regla 1:3** (1 Directiva : 3 Skills por módulo).
 - [ ] La **Directiva (`/directives/`)** fue actualizada si hubo cambios de lógica de negocio.
 - [ ] El código ha sido probado localmente sin arrojar errores (Logs limpios).
-- [ ] Cumple con la normativa **SPA y Estructura ADN Chapitas**.
+- [ ] Cumple con la normativa **SPA y Placas Independientes** (Arquitectura de Placas Independientes de Información).
 - [ ] **Seguridad:** Ningún token de API, contraseña o dato sensible está expuesto.
 - [ ] Los estilos obedecen a variables globales en `main.css`.
 
