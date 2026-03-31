@@ -79,9 +79,6 @@ require_once '../includes/security.php';
                 <a href="javascript:void(0)" onclick="openAppModal('apps/productos/stock.php')" class="chapa-link-item">
                     <span class="chapa-link-icon">📊</span> Gestión de Inventario
                 </a>
-                <a href="javascript:void(0)" onclick="openAppModal('apps/productos/campanas.php')" class="chapa-link-item opacity-50 pointer-events-none">
-                    <span class="chapa-link-icon">🔥</span> Campañas Catálogos
-                </a>
                 <a href="javascript:void(0)" onclick="openAppModal('apps/productos/proveedores.php')" class="chapa-link-item">
                     <span class="chapa-link-icon">🏭</span> Proveedores
                 </a>

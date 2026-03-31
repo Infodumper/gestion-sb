@@ -6,6 +6,7 @@ if (!isset($_SESSION['userid'])) {
 }
 require_once '../../../includes/db.php';
 require_once '../../../includes/security.php';
+require_once '../../../includes/utils.php';
 
 // --- Lógica de Guardado ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
@@ -54,68 +55,54 @@ $proveedores = $pdo->query("SELECT IdProveedor, NombreComercial FROM proveedores
     <title>Gestión de Inventario | Stefy Barroso</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Libre+Baskerville:ital,wght@1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../../styles/main.css">
+    <link rel="stylesheet" href="../../../styles/main.css?v=4.0">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gray-50 min-h-screen p-4 sm:p-8">
     <div class="max-w-6xl mx-auto">
-        <!-- Cabecera Estilo Pop-up (Subplaca) -->
-        <div class="app-header-premium modal-header-premium mb-4 flex justify-between items-center">
-            <h2 class="modal-title-premium italic">Inventario</h2>
-            <div class="flex items-center gap-4">
-                <button onclick="openModal()" class="bg-emerald-600 text-white px-4 py-1 rounded-xl font-bold shadow-sm hover:bg-emerald-700 transition-all text-sm">
-                    ➕ NUEVO
-                </button>
-                <button type="button" onclick="window.parent.closeAppModal()" class="btn-close-premium" title="Cerrar">&times;</button>
-            </div>
-        </div>
+        <!-- Cabecera Estilo Pop-up (Centralizada) -->
+        <?php render_premium_header('Inventario', 'openModal()'); ?>
 
         <?php if(isset($success_msg)): ?>
             <script>Swal.fire('¡Éxito!', '<?= $success_msg ?>', 'success');</script>
         <?php endif; ?>
 
-        <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-emerald-50">
-            <table class="w-full text-left">
-                <thead class="bg-emerald-50 text-emerald-900 uppercase text-xs font-bold tracking-widest">
-                    <tr>
-                        <th class="px-6 py-4">Cod.</th>
-                        <th class="px-6 py-4">Producto</th>
-                        <th class="px-6 py-4">Proveedor</th>
-                        <th class="px-6 py-4 text-center">Stock</th>
-                        <th class="px-6 py-4 text-right pr-20">Precio</th>
-                        <th class="px-6 py-4 text-center">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-emerald-50">
-                    <?php foreach($productos as $p): ?>
-                    <tr class="hover:bg-emerald-50/30 transition-colors">
-                        <td class="px-6 py-4 font-mono text-xs text-emerald-800"><?= htmlspecialchars($p['Codigo'] ?: '-') ?></td>
-                        <td class="px-6 py-4">
-                            <div class="font-bold text-emerald-950"><?= htmlspecialchars($p['Nombre']) ?></div>
-                            <div class="text-xs text-gray-400"><?= htmlspecialchars($p['Descripcion'] ?: 'Sin descripción') ?></div>
-                        </td>
-                        <td class="px-6 py-4 text-emerald-600 font-medium"><?= htmlspecialchars($p['Proveedor'] ?: 'Sin Proveedor') ?></td>
-                        <td class="px-6 py-4 text-center">
-                            <span class="px-3 py-1 bg-gray-100 rounded-full font-bold text-emerald-900 border border-gray-200"><?= $p['Stock'] ?></span>
-                        </td>
-                        <td class="px-6 py-4 text-right pr-20">
-                            <span class="font-bold text-lg text-emerald-950">$ <?= number_format($p['Precio'], 2, ',', '.') ?></span>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="flex justify-center gap-2">
-                                <button onclick='editProducto(<?= json_encode($p) ?>)' class="p-2 hover:bg-white rounded-lg transition-all" title="Editar">✏️</button>
-                                <button onclick='deleteProducto(<?= $p["IdProducto"] ?>)' class="p-2 hover:bg-white rounded-lg transition-all text-red-400" title="Eliminar">🗑️</button>
+        <!-- Listado de Productos (Subplacas) -->
+        <div class="space-y-3">
+            <?php foreach($productos as $p): ?>
+                <div class="subplaca-adn">
+                    <div class="subplaca-acento bg-emerald-500"></div>
+                    <div class="subplaca-cuerpo">
+                        <div class="subplaca-info">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-black"><?= htmlspecialchars($p['Codigo'] ?: '-') ?></span>
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tight"><?= htmlspecialchars($p['Proveedor'] ?: 'SIN PROVEEDOR') ?></span>
                             </div>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                    <?php if(empty($productos)): ?>
-                    <tr>
-                        <td colspan="6" class="px-6 py-20 text-center text-gray-400 italic">No hay productos registrados.</td>
-                    </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+                            <h3 class="font-bold text-emerald-950 text-[1.15rem] leading-tight"><?= htmlspecialchars($p['Nombre']) ?></h3>
+                            <div class="flex items-center gap-3 mt-1.5">
+                                <div class="flex items-center gap-1">
+                                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Stock:</span>
+                                    <span class="text-[12px] font-black <?= $p['Stock'] < 5 ? 'text-red-500' : 'text-emerald-600' ?>"><?= $p['Stock'] ?></span>
+                                </div>
+                                <span class="text-gray-200">|</span>
+                                <div class="flex items-center gap-1">
+                                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Precio:</span>
+                                    <span class="text-[12px] font-black text-emerald-900">$ <?= number_format($p['Precio'], 2, ',', '.') ?></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="subplaca-acciones !flex-row !items-center !gap-2">
+                             <button onclick='editProducto(<?= json_encode($p) ?>)' class="w-8 h-8 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center text-sm hover:bg-emerald-950 hover:text-white transition-all shadow-sm">✏️</button>
+                             <button onclick='deleteProducto(<?= $p["IdProducto"] ?>)' class="w-8 h-8 bg-red-50 text-red-400 rounded-full flex items-center justify-center text-sm hover:bg-red-500 hover:text-white transition-all shadow-sm">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+            <?php if(empty($productos)): ?>
+                <div class="bg-white rounded-3xl p-10 text-center shadow-sm border border-emerald-50 text-gray-400 italic font-medium">
+                    No hay productos registrados.
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 

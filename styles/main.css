@@ -109,21 +109,81 @@ body {
 }
 
 /* Modal Premium Styles Centralized */
+/* --- Estructura de Cabecera Premium Centralizada (Títulos a la Izquierda) --- */
 .modal-header-premium {
-    background-color: #f0fdf4; /* Verde muy suave */
-    padding: 1rem 1rem; /* Reducido para móviles */
-    border-bottom: 2px solid #dcfce7;
-    text-align: center;
-    position: relative;
-    min-height: 4.5rem; /* Asegura espacio para la X bajada */
+    background-color: #f0fdf4 !important;
+    padding: 0.75rem 1.5rem !important; /* Reduced padding */
+    border-bottom: 2px solid #dcfce7 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important; 
+    position: relative !important;
+    min-height: 70px !important; /* Reduced min-height */
+    width: 100% !important;
 }
 
 .modal-title-premium {
-    font-family: var(--fuente-titulo);
-    font-size: 2rem; /* Un poco más pequeño para mobile consistency */
-    color: #064e3b;
-    margin-bottom: 0;
-    line-height: 1.1;
+    font-family: 'Libre Baskerville', serif !important;
+    font-style: italic !important;
+    font-size: 1.6rem !important; /* Slightly more compact for long names */
+    color: #064e3b !important;
+    margin: 0 !important;
+    text-align: left !important;
+    z-index: 1 !important;
+    padding-right: 120px !important; /* Space for buttons */
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+/* Botón NUEVO en la cabecera (lado derecho) */
+.btn-header-nuevo {
+    position: absolute !important;
+    right: 3.5rem !important; /* Closer to the X */
+    top: 0.75rem !important;
+    transform: none !important;
+    padding: 0.5rem 1rem !important; /* Slighly more compact */
+    z-index: 10 !important;
+    background-color: var(--color-marca-principal) !important;
+    color: white !important;
+    padding: 0.6rem 1.2rem !important;
+    border-radius: 1rem !important;
+    font-weight: 700 !important;
+    font-size: 0.85rem !important;
+    box-shadow: 0 4px 10px rgba(0, 168, 118, 0.15) !important;
+    border: none !important;
+    white-space: nowrap !important;
+}
+
+/* Botón de Cierre Premium (X con círculo esmeralda) */
+.btn-close-premium {
+    position: absolute !important;
+    top: 0.75rem !important; /* Higher up in the corner */
+    right: 0.75rem !important;
+    transform: none !important;
+    width: 38px !important; /* Slightly more compact */
+    height: 38px !important;
+    background-color: #064e3b !important;
+    color: #f0fdf4 !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 26px !important;
+    font-weight: 900 !important;
+    border: none !important;
+    cursor: pointer !important;
+    z-index: 100 !important;
+    line-height: 1 !important;
+    padding: 0 !important;
+    padding-bottom: 4px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.btn-close-premium:hover {
+    transform: translateY(-50%) scale(1.1) rotate(90deg) !important;
+    background-color: #059669 !important;
 }
 
 #modalNuevoCliente, #modalEditarCliente, #modalApp {
@@ -146,35 +206,6 @@ body {
         align-items: center !important;
         padding-top: 0;
     }
-}
-
-/* --- Botón de Cierre Premium --- */
-.btn-close-premium {
-    position: absolute !important;
-    top: 1.5rem !important; /* Bajado un poco según solicitud */
-    right: 1.5rem !important;
-    width: 32px !important;
-    height: 32px !important;
-    background-color: #064e3b !important;
-    color: #f0fdf4 !important;
-    border-radius: 50% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    font-size: 22px !important;
-    font-weight: 900 !important;
-    border: none !important;
-    cursor: pointer !important;
-    z-index: 100 !important;
-    line-height: 1 !important;
-    padding: 0 !important;
-    padding-bottom: 2px !important;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
-}
-
-.btn-close-premium:hover {
-    transform: scale(1.1) rotate(90deg) !important;
-    background-color: #059669 !important;
 }
 
 /* Iframe Modal Utility */
@@ -218,11 +249,11 @@ body {
 .search-container-premium {
     background: white;
     border-radius: 2rem;
-    padding: 0.5rem;
+    padding: 0.4rem; /* Reduced padding */
     border: 1px solid #e2e8f0;
     display: flex;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem; /* Reduced margin */
 }
 
 .search-input-premium {
@@ -404,15 +435,15 @@ body {
 /* --- Sistema de Subplacas (ADN Gestion SB) --- */
 .subplaca-adn {
     background: white !important;
-    border-radius: 1.8rem !important;
-    border: 1px solid #f1f5f9 !important;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
-    margin-bottom: 0.75rem !important;
+    border-radius: 1.25rem !important; /* Slightly more compact radius */
+    border: 1px solid #e2e8f0 !important; /* Added visible border for differentiation */
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08) !important; /* Stronger shadow */
+    margin-bottom: 0.6rem !important; /* Reduced margin for density */
     display: flex !important;
     overflow: hidden !important;
     transition: all 0.2s ease !important;
     position: relative !important;
-    min-height: 80px;
+    min-height: unset !important; /* Removed fixed min-height to reduce white space */
 }
 
 .subplaca-adn:hover {
@@ -428,7 +459,7 @@ body {
 
 .subplaca-cuerpo {
     flex: 1 !important;
-    padding: 1rem !important;
+    padding: 0.65rem 1rem !important; /* Reduced vertical padding */
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
@@ -437,7 +468,7 @@ body {
 .subplaca-info {
     display: flex !important;
     flex-direction: column !important;
-    gap: 0.15rem !important;
+    gap: 0.1rem !important; /* Reduced gap */
 }
 
 .subplaca-acciones {

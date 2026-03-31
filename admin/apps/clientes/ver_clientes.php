@@ -6,6 +6,7 @@ if (!isset($_SESSION['userid'])) {
 }
 require_once '../../../includes/db.php';
 require_once '../../../includes/security.php';
+require_once '../../../includes/utils.php';
 header('Content-Type: text/html; charset=utf-8');
 
 // --- Lógica de Filtros y Búsqueda ---
@@ -66,7 +67,7 @@ function make_sort_link($col, $label, $current_col, $current_order, $current_fil
     <title>Directorio de Clientes | Stefy Barroso</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Libre+Baskerville:ital,wght@1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../../styles/main.css?v=2.0">
+    <link rel="stylesheet" href="../../../styles/main.css?v=4.0">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         .table-custom { border-collapse: separate; border-spacing: 0 0.5rem; }
@@ -75,16 +76,15 @@ function make_sort_link($col, $label, $current_col, $current_order, $current_fil
         .table-custom tbody tr:hover { transform: scale(1.005); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
     </style>
 </head>
-<body class="min-h-screen pt-12 pb-4 px-2 sm:px-10">
+<body class="min-h-screen p-1 sm:p-4">
     <script>
         if (window.self !== window.top) {
             document.body.classList.add('is-iframe');
         }
     </script>
     <style>
-        .is-iframe .back-panel-link, .is-iframe .header-original-clientes { display: none !important; }
-        .is-iframe { background-color: white !important; }
-        .is-iframe body { padding-top: 0 !important; padding-bottom: 0 !important; overflow-x: hidden; }
+        body.is-iframe { border-radius: 0 !important; background-color: white !important; overflow-y: auto !important; }
+        .is-iframe .max-w-7xl { padding: 0 !important; }
         .is-iframe .app-header-premium { display: block !important; }
         .app-header-premium { display: none; } /* Solo visible en iframe mode */
     </style>
@@ -93,20 +93,8 @@ function make_sort_link($col, $label, $current_col, $current_order, $current_fil
         <!-- PLACA MAESTRA: Directorio de Clientes -->
         <div class="master-placa bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-emerald-100 flex flex-col mb-10 animate-in fade-in duration-300">
             
-            <!-- Cabecera Maestra Compacta -->
-            <div class="px-8 py-5 border-b border-emerald-50 flex justify-between items-center bg-gradient-to-r from-emerald-50 to-white">
-                <div class="flex items-center gap-4">
-                    <span class="text-3xl">👥</span>
-                    <div>
-                        <h1 class="brand-title text-3xl text-emerald-950 italic leading-none">Clientes</h1>
-                        <p class="text-[9px] font-black text-emerald-900/30 uppercase tracking-[0.2em] mt-1">Directorio de Contactos</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-3">
-                    <button onclick="openClientModal()" class="w-10 h-10 bg-emerald-700 text-white rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-95" title="Nuevo Cliente">➕</button>
-                    <button onclick="window.parent.closeAppModal()" class="w-10 h-10 bg-emerald-950 text-white rounded-full flex items-center justify-center text-2xl font-light hover:bg-emerald-700 transition-all shadow-lg">&times;</button>
-                </div>
-            </div>
+            <!-- Cabecera Maestra Estándar -->
+            <?php render_premium_header('Clientes', 'openClientModal()'); ?>
 
             <!-- Contenido Principal -->
             <div class="p-4 sm:p-8">
@@ -124,40 +112,32 @@ function make_sort_link($col, $label, $current_col, $current_order, $current_fil
                 </div>
 
                 <!-- Listado en Subplacas (Sistema de Placas Independientes) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     <?php if (empty($clientes)): ?>
                         <div class="col-span-full py-20 text-center bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-200">
                             <p class="text-gray-400 italic text-lg">No se hallaron clientes.</p>
                         </div>
                     <?php else: ?>
                         <?php foreach($clientes as $c): ?>
-                        <div class="flex flex-col bg-white border border-gray-100 rounded-[1.8rem] shadow-sm hover:shadow-md transition-all group overflow-hidden" onclick="showDetails(<?= $c['IdCliente'] ?>)">
-                            <div class="p-5 flex-1 cursor-pointer">
-                                <!-- Cabecera de Subplaca: Nombre y WA -->
-                                <div class="flex justify-between items-start mb-2">
-                                    <div class="min-w-0 pr-3">
-                                        <h3 class="font-black text-[1rem] text-emerald-950 truncate leading-tight">
-                                            <?= htmlspecialchars($c['Apellido']) ?> <?= htmlspecialchars($c['Nombre']) ?>
-                                        </h3>
-                                        <p class="text-[10px] text-emerald-500 font-bold tracking-widest mt-0.5">
-                                            <?= htmlspecialchars($c['Telefono']) ?>
-                                        </p>
-                                    </div>
-                                    <a href="https://wa.me/<?= preg_replace('/[^0-9]/','',$c['Telefono']) ?>" target="_blank" onclick="event.stopPropagation();" 
-                                       class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center shadow-sm hover:scale-110 active:scale-95 transition-all">
-                                       <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.417-.003 6.557-5.338 11.892-11.893 11.892-1.997-.001-3.951-.5-5.688-1.448l-6.305 1.652zm6.599-3.835c1.52.909 3.125 1.388 4.773 1.389 5.233.002 9.491-4.258 9.493-9.492.001-2.533-.986-4.915-2.778-6.708s-4.177-2.779-6.709-2.78c-5.235 0-9.492 4.258-9.493 9.493-.001 1.761.488 3.476 1.415 4.974l-1.08 3.946 4.079-1.071zm9.178-6.035c-.255-.127-1.503-.734-1.737-.82-.233-.086-.403-.127-.573.127s-.657.82-.805.99c-.148.17-.297.191-.553.064-1.831-.916-2.825-1.526-3.951-3.456-.255-.436.255-.404.729-1.353.078-.159.039-.297-.021-.423-.06-.126-.573-1.38-.785-1.889-.208-.499-.42-.43-.573-.438-.148-.007-.318-.008-.488-.008s-.446.063-.679.297c-.234.233-.892.871-.892 2.122 0 1.25.912 2.46 1.039 2.63.127.17 1.794 2.738 4.346 3.84.607.262 1.08.419 1.448.536.611.194 1.167.166 1.607.101.491-.072 1.503-.615 1.714-1.209.211-.595.211-1.104.148-1.209-.063-.105-.233-.148-.488-.275z"/></svg>
-                                    </a>
+                        <div class="subplaca-adn !mb-0 cursor-pointer" onclick="showDetails(<?= $c['IdCliente'] ?>)">
+                            <div class="subplaca-acento bg-emerald-500"></div>
+                            <div class="subplaca-cuerpo">
+                                <div class="subplaca-info">
+                                    <h3 class="font-bold text-emerald-950 text-[1.15rem] leading-tight"><?= s($c['Apellido']) ?> <?= s($c['Nombre']) ?></h3>
+                                    <p class="text-[11px] font-bold text-emerald-600 mt-0.5 tracking-wider"><?= s($c['Telefono']) ?></p>
+                                    <p class="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-tight">
+                                        <?= (int)$c['Dni'] > 0 ? 'DNI: '.s($c['Dni']) : 'SIN DNI' ?>
+                                    </p>
                                 </div>
-                                
-                                <!-- Detalle Inferior Compacto -->
-                                <div class="flex justify-between items-center mt-4 pt-3 border-t border-gray-50">
-                                    <span class="text-[9px] font-black uppercase tracking-wider text-gray-300">
-                                        <?= (int)$c['Dni'] > 0 ? 'DNI: '.s($c['Dni']) : 'Sin DNI' ?>
-                                    </span>
-                                    <button onclick="event.stopPropagation(); openEditClient(<?= $c['IdCliente'] ?>)" 
-                                            class="w-8 h-8 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center hover:bg-emerald-700 hover:text-white transition-all shadow-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                    </button>
+                                <div class="subplaca-acciones !flex-row !items-center !gap-2">
+                                     <button onclick="event.stopPropagation(); openEditClient(<?= $c['IdCliente'] ?>)" 
+                                             class="w-8 h-8 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center hover:bg-emerald-700 hover:text-white transition-all shadow-sm">
+                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                     </button>
+                                     <a href="https://wa.me/<?= preg_replace('/[^0-9]/','',$c['Telefono']) ?>" target="_blank" onclick="event.stopPropagation();" 
+                                        class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center shadow-sm hover:scale-110 active:scale-95 transition-all">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.417-.003 6.557-5.338 11.892-11.893 11.892-1.997-.001-3.951-.5-5.688-1.448l-6.305 1.652zm6.599-3.835c1.52.909 3.125 1.388 4.773 1.389 5.233.002 9.491-4.258 9.493-9.492.001-2.533-.986-4.915-2.778-6.708s-4.177-2.779-6.709-2.78c-5.235 0-9.492 4.258-9.493 9.493-.001 1.761.488 3.476 1.415 4.974l-1.08 3.946 4.079-1.071zm9.178-6.035c-.255-.127-1.503-.734-1.737-.82-.233-.086-.403-.127-.573.127s-.657.82-.805.99c-.148.17-.297.191-.553.064-1.831-.916-2.825-1.526-3.951-3.456-.255-.436.255-.404.729-1.353.078-.159.039-.297-.021-.423-.06-.126-.573-1.38-.785-1.889-.208-.499-.42-.43-.573-.438-.148-.007-.318-.008-.488-.008s-.446.063-.679.297c-.234.233-.892.871-.892 2.122 0 1.25.912 2.46 1.039 2.63.127.17 1.794 2.738 4.346 3.84.607.262 1.08.419 1.448.536.611.194 1.167.166 1.607.101.491-.072 1.503-.615 1.714-1.209.211-.595.211-1.104.148-1.209-.063-.105-.233-.148-.488-.275z"/></svg>
+                                     </a>
                                 </div>
                             </div>
                         </div>

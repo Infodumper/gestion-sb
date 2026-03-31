@@ -6,6 +6,7 @@ if (!isset($_SESSION['userid'])) {
 }
 require_once '../../../includes/db.php';
 require_once '../../../includes/security.php';
+require_once '../../../includes/utils.php';
 
 // --- Lógica de Guardado ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
@@ -45,62 +46,45 @@ $proveedores = $pdo->query("SELECT * FROM proveedores WHERE Estado = 1 ORDER BY 
     <title>Proveedores | Stefy Barroso</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Libre+Baskerville:ital,wght@1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../../styles/main.css">
+    <link rel="stylesheet" href="../../../styles/main.css?v=4.0">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gray-50 min-h-screen p-4 sm:p-8">
     <div class="max-w-6xl mx-auto">
-        <!-- Cabecera Estilo Pop-up (Subplaca) -->
-        <div class="app-header-premium modal-header-premium mb-4 flex justify-between items-center">
-            <h2 class="modal-title-premium italic">Proveedores</h2>
-            <div class="flex items-center gap-4">
-                <button onclick="openModal()" class="bg-emerald-600 text-white px-4 py-1 rounded-xl font-bold shadow-sm hover:bg-emerald-700 transition-all text-sm">
-                    ➕ NUEVO
-                </button>
-                <button type="button" onclick="window.parent.closeAppModal()" class="btn-close-premium" title="Cerrar">&times;</button>
-            </div>
-        </div>
+        <!-- Cabecera Estilo Pop-up (Centralizada) -->
+        <?php render_premium_header('Proveedores', 'openModal()'); ?>
 
         <?php if(isset($success_msg)): ?>
             <script>Swal.fire('¡Éxito!', '<?= $success_msg ?>', 'success');</script>
         <?php endif; ?>
 
-        <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-emerald-50">
-            <table class="w-full text-left">
-                <thead class="bg-emerald-50 text-emerald-900 uppercase text-xs font-bold tracking-widest">
-                    <tr>
-                        <th class="px-6 py-4">Nombre Comercial</th>
-                        <th class="px-6 py-4">Contacto</th>
-                        <th class="px-6 py-4">Teléfono</th>
-                        <th class="px-6 py-4">Email</th>
-                        <th class="px-6 py-4 text-center">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-emerald-50">
-                    <?php foreach($proveedores as $p): ?>
-                    <tr class="hover:bg-emerald-50/30 transition-colors">
-                        <td class="px-6 py-4">
-                            <div class="font-bold text-emerald-950"><?= htmlspecialchars($p['NombreComercial']) ?></div>
-                            <div class="text-xs text-gray-400">CUIT: <?= htmlspecialchars($p['Cuit'] ?: '-') ?></div>
-                        </td>
-                        <td class="px-6 py-4 text-gray-600"><?= htmlspecialchars($p['Contacto'] ?: '-') ?></td>
-                        <td class="px-6 py-4 text-gray-600 font-medium"><?= htmlspecialchars($p['Telefono'] ?: '-') ?></td>
-                        <td class="px-6 py-4 text-gray-500 text-sm"><?= htmlspecialchars($p['Email'] ?: '-') ?></td>
-                        <td class="px-6 py-4">
-                            <div class="flex justify-center gap-2">
-                                <button onclick='editProveedor(<?= json_encode($p) ?>)' class="p-2 hover:bg-white rounded-lg transition-all" title="Editar">✏️</button>
-                                <button onclick='deleteProveedor(<?= $p["IdProveedor"] ?>)' class="p-2 hover:bg-white rounded-lg transition-all text-red-400" title="Eliminar">🗑️</button>
+        <!-- Listado de Proveedores (Subplacas) -->
+        <div class="space-y-3">
+            <?php foreach($proveedores as $p): ?>
+                <div class="subplaca-adn">
+                    <div class="subplaca-acento bg-emerald-500"></div>
+                    <div class="subplaca-cuerpo">
+                        <div class="subplaca-info">
+                            <h3 class="font-bold text-emerald-950 text-[1.15rem] leading-tight"><?= htmlspecialchars($p['NombreComercial']) ?></h3>
+                            <p class="text-[11px] font-bold text-emerald-600 mt-0.5 tracking-wider"><?= htmlspecialchars($p['Telefono'] ?: 'SIN TELÉFONO') ?></p>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tight">👤 <?= htmlspecialchars($p['Contacto'] ?: 'SIN CONTACTO') ?></span>
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tight">|</span>
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tight">ID: <?= htmlspecialchars($p['Cuit'] ?: '-') ?></span>
                             </div>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                    <?php if(empty($proveedores)): ?>
-                    <tr>
-                        <td colspan="5" class="px-6 py-20 text-center text-gray-400 italic">No hay proveedores registrados.</td>
-                    </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+                        </div>
+                        <div class="subplaca-acciones !flex-row !items-center !gap-2">
+                             <button onclick='editProveedor(<?= json_encode($p) ?>)' class="w-8 h-8 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center text-sm hover:bg-emerald-950 hover:text-white transition-all shadow-sm">✏️</button>
+                             <button onclick='deleteProveedor(<?= $p["IdProveedor"] ?>)' class="w-8 h-8 bg-red-50 text-red-400 rounded-full flex items-center justify-center text-sm hover:bg-red-500 hover:text-white transition-all shadow-sm">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+            <?php if(empty($proveedores)): ?>
+                <div class="bg-white rounded-3xl p-10 text-center shadow-sm border border-emerald-50 text-gray-400 italic font-medium">
+                    No hay proveedores registrados.
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 

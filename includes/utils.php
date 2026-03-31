@@ -51,4 +51,22 @@ if (!function_exists('get_month_name')) {
         return $months[(int)$month_num] ?? 'Desconocido';
     }
 }
+if (!function_exists('render_premium_header')) {
+    /**
+     * CENTRALIZA LA CABECERA DE LOS MÓDULOS (PREMIUM)
+     * Asegura que el título, el botón NUEVO y la X de cierre sean idénticos en todo el sistema.
+     */
+    function render_premium_header($title, $btn_new_onclick = null) {
+        $btn_html = '';
+        if ($btn_new_onclick) {
+            $btn_html = '<button onclick="'.htmlspecialchars($btn_new_onclick).'" class="btn-header-nuevo"><span class="text-xs mr-1">➕</span> NUEVO</button>';
+        }
+        echo '
+        <div class="modal-header-premium mb-6">
+            <h1 class="modal-title-premium">'.htmlspecialchars($title).'</h1>
+            '.$btn_html.'
+            <button type="button" onclick="window.parent.closeAppModal()" class="btn-close-premium" title="Cerrar">&times;</button>
+        </div>';
+    }
+}
 ?>
