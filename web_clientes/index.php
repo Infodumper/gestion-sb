@@ -56,13 +56,6 @@
         <a href="#catalogo" class="mobile-link hover:text-primary transition-colors">CATÁLOGO</a>
         <a href="#sumate" class="mobile-link hover:text-primary transition-colors">SUMATE</a>
         <a href="#contacto" class="mobile-link hover:text-primary transition-colors">CONTACTO</a>
-        
-        <a href="/consultora" class="mobile-link text-primary bg-white px-10 py-3 rounded-[2rem] mt-8 shadow-sm flex items-center gap-2">
-            Login CRM
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
-            </svg>
-        </a>
     </div>
 
     <!-- Header -->
@@ -79,23 +72,12 @@
             </div>
 
             <!-- Desktop Menu -->
-            <ul class="hidden md:flex flex-1 justify-center space-x-10 font-bold text-xs tracking-[0.1em] text-gray-500 items-center">
+            <ul class="hidden md:flex flex-1 justify-end space-x-10 font-bold text-xs tracking-[0.1em] text-gray-500 items-center">
                 <li><a href="#inicio" class="hover:text-primary transition-colors">INICIO</a></li>
                 <li><a href="#catalogo" class="hover:text-primary transition-colors">CATÁLOGO</a></li>
                 <li><a href="#sumate" class="hover:text-primary transition-colors">SUMATE</a></li>
                 <li><a href="#contacto" class="hover:text-primary transition-colors">CONTACTO</a></li>
             </ul>
-
-            <!-- Botón Login CRM (Derecha) -->
-            <div class="flex-1 flex justify-end">
-                <a href="/consultora" class="flex items-center gap-2 text-primary font-bold text-sm bg-primary/10 hover:bg-primary/20 px-5 py-2 rounded-2xl transition-all">
-                    <span class="hidden sm:inline">Ingresar</span>
-                    <span class="sm:hidden">Login</span>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
-                    </svg>
-                </a>
-            </div>
             
         </nav>
     </header>
@@ -323,33 +305,32 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-brandText text-white pt-12 pb-8">
-        <div class="w-full max-w-7xl mx-auto px-2 lg:px-5 flex flex-col md:flex-row justify-between items-center md:items-start border-b border-white/10 pb-8">
-            <div class="mb-8 md:mb-0 text-center md:text-left">
-                <img src="assets/logo.png" alt="Perla Negra" class="h-14 w-auto mb-4 brightness-0 invert mx-auto md:mx-0">
-                <p class="max-w-xs text-gray-400">Transformá tu belleza y crecé con el asesoramiento profesional de Stefy Barroso.</p>
+    <footer class="bg-brandText text-white pt-8 pb-4">
+        <div class="w-full max-w-7xl mx-auto px-2 lg:px-5 flex flex-col md:flex-row justify-between items-center md:items-start border-b border-white/10 pb-6">
+            <div class="mb-6 md:mb-0 text-center md:text-left flex flex-col items-center md:items-start">
+                <img src="assets/logo.png" alt="Perla Negra" class="h-10 w-auto mb-2 brightness-0 invert mx-auto md:mx-0">
+                <p class="max-w-xs text-gray-400 text-sm">Transformá tu belleza y crecé con el asesoramiento profesional de Stefy Barroso.</p>
             </div>
-            
-            <div class="grid grid-cols-2 lg:grid-cols-3 gap-10 text-center md:text-left">
-                <div>
-                    <h4 class="font-bold mb-4">Servicios</h4>
-                    <ul class="text-gray-400 space-y-3">
-                        <li>Peluquería</li>
-                        <li>Maquillaje</li>
-                        <li>Uñas</li>
+            <div class="flex flex-row gap-12 sm:gap-20 text-left">
+                <div class="mb-4 md:mb-0">
+                    <h3 class="text-base font-bold mb-2">Servicios</h3>
+                    <ul class="space-y-2 text-gray-400 text-sm">
+                        <li><a href="#catalogo" class="hover:text-white transition-colors">Peluquería</a></li>
+                        <li><a href="#catalogo" class="hover:text-white transition-colors">Maquillaje</a></li>
+                        <li><a href="#catalogo" class="hover:text-white transition-colors">Uñas</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="font-bold mb-6">Contacto</h4>
-                    <ul class="text-gray-400 space-y-4">
-                        <li>WhatsApp</li>
-                        <li>Instagram</li>
-                        <li>TikTok</li>
+                    <h3 class="text-base font-bold mb-2">Contacto</h3>
+                    <ul class="space-y-2 text-gray-400 text-sm">
+                        <li><a href="https://wa.me/5492235869878" class="hover:text-white transition-colors">WhatsApp</a></li>
+                        <li><a href="https://instagram.com/stefybarroso" class="hover:text-white transition-colors">Instagram</a></li>
+                        <li><a href="https://tiktok.com/@stefybarroso" class="hover:text-white transition-colors">TikTok</a></li>
                     </ul>
                 </div>
             </div>
         </div>
-        <div class="w-full max-w-7xl mx-auto px-2 lg:px-5 mt-10 text-center text-gray-500 text-sm">
+        <div class="w-full max-w-7xl mx-auto px-2 lg:px-5 mt-4 text-center text-gray-500 text-xs">
             <p>&copy; 2026 Stefy Barroso - Consultora de Belleza. Todos los derechos reservados.</p>
         </div>
     </footer>
