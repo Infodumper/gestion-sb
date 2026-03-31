@@ -23,4 +23,4 @@ El sistema opera sobre una topología de **4 capas** (Directivas, Orquestación,
 - `/utils`: Herramientas de soporte y logging.
 
 ---
-© 2026 Stefy Barroso - Consultora Tecnológica
+© 2026 Ignacio Vizoso - Consultor Tecnológica
