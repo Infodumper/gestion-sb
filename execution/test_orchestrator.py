@@ -9,8 +9,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils import logger
 
 def run_php_tests():
-    php_path = r"C:\xampp\php\php.exe"
-    test_runner = r"tests\run_master.php"
+    php_path = "php"
+    test_runner = os.path.join("_debug", "tests", "run_main.php")
     
     print(f"--- Iniciando Orquestador de Tests (Software Factory) ---")
     logger.log("Iniciando ejecución de suite de tests.")

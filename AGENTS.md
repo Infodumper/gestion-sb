@@ -1,10 +1,10 @@
-# Arquitectura y Estándares de Sistema – "Consultora"
+# Arquitectura y Estándares de Sistema – "Gestion SB"
 
 > Este documento contiene los protocolos técnicos y de arquitectura. Aplica a todo entorno de orquestación de agentes y a los pipelines de desarrollo automatizado (CLAUDE, GEMINI, etc).
 
 ## 1. Alcance Operativo
 
-El entorno "Consultora" opera bajo un modelo de ingeniería automatizada para la construcción de plataformas digitales. Los productos resultantes deben cumplir estrictamente con los estándares de nivel de producción, garantizando alta disponibilidad, mantenibilidad arquitectónica, rendimiento óptimo en despliegue y adherencia a los lineamientos UI/UX corporativos.
+El entorno "Gestion SB" opera bajo un modelo de ingeniería automatizada para la construcción de plataformas digitales. Los productos resultantes deben cumplir estrictamente con los estándares de nivel de producción, garantizando alta disponibilidad, mantenibilidad arquitectónica, rendimiento óptimo en despliegue y adherencia a los lineamientos UI/UX corporativos.
 
 ## 2. Arquitectura de 4 Capas
 
@@ -30,7 +30,7 @@ El ecosistema opera sobre una topología de cuatro capas, definidas para garanti
 
 ### Capa 4: Observabilidad de la Plataforma
 - Visibilidad del backend mediante un nodo de monitoreo dedicado (`dashboard/app.py`).
-- Audita rendimiento, transacciones, latencias de despliegue y el estado de bases de datos locales (`logs/consultora.db`).
+- Audita rendimiento, transacciones, latencias de despliegue y el estado de bases de datos locales (`logs/gestion_sb.db`).
 
 ## 3. Estándares Técnicos Frontend (Infraestructura Móvil)
 
@@ -38,9 +38,11 @@ Todo módulo del ecosistema debe converger obligatoriamente hacia las normativas
 
 ### 3.1. Estructura y Rendering
 - **Arquitectura SPA (Single Page Application)**: Dominio sobre los tiempos de carga en dispositivos móviles restringiendo imperativamente el uso indiscriminado de frameworks. Navegación enrutada asíncronamente.
-- **Topología UI "ADN Chapitas"**: Modelo de interfaz estandarizado con distribución en contenedores maestros ("chapas") y listados funcionales ("chapitas").
+- **Arquitectura de Placas Independientes de Información**: Modelo de interfaz estandarizado con distribución en contenedores maestros ("Placas Maestras") y listados funcionales ("Subplacas" o placas de información).
+- **Regla de las Subplacas**: Está terminantemente prohibido mostrar datos sueltos o texto flotante en los listados. Cada entidad (Cliente, Producto, Venta, etc.) debe habitar dentro de su propia "Subplaca": una tarjeta blanca (`bg-white`), con bordes redondeados (`rounded-[1.5rem]`), sombra suave (`shadow-sm`) y efectos de hover suaves.
 - **Hojas de Estilo Globales**: Centralización estricta (`colores.css`). Está prohibido explícitamente el uso de "inline styles", reglas flotantes sueltas y declaración de componentes con clases CSS redundantes no globalizadas.
 - **UX en Móviles**: Implementación reglamentaria de paneles de navegación inferior (Bottom Navbars), áreas táctiles optimizadas y soporte integral Claro/Oscuro. Empleo prioritario de **Tailwind CSS**.
+- **Regla de la "X" (Cierre)**: Se establece el estándar de un solo botón de cierre visible. En vistas principales y módulos integrados, la "X" debe ubicarse únicamente en la zona inferior (Bottom Navbar o acción persistente). Solo las ventanas secundarias de tipo **pop-up o modales** deben incorporar el botón "X" en la cinta del título (encabezado superior derecho del contenedor).
 
 ### 3.2. Localización y Refactorización
 - Idioma de despliegue, documentación de la UI y variables de salida debe encontrarse puramente en idioma español. Nomenclatura base de sistemas anglosajona admitida únicamente en la sintaxis profunda del código.
@@ -62,15 +64,29 @@ Todo módulo del ecosistema debe converger obligatoriamente hacia las normativas
 - `utils/`: Módulos de soporte subyacente de uso constante.
 - `.agent/workflows/`: Pipelines continuos o rutinas paramétricas de desarrollo continuo.
 
-## 6. Módulos y Skills del Ecosistema
+## 6. Módulos y Skills del Ecosistema (Regla 1:3)
 
-La infraestructura backend se gestiona mediante componentes especializados ("Skills") que garantizan la modularidad:
+Cada módulo de aplicación se rige por **una Directiva** propia y se apalanca en **tres Skills** especializadas para su ejecución:
 
-- **client_manager**: Orquestador transaccional (CRUD) y Middleware de validación de datos de clientes.
-- **login_manager**: Gestión de autenticación biométrica, JWT/SESION y seguridad sin recarga de vistas.
-- **menu_navigator**: Controlador de estado SPA y ruteo dinámico para interfaces Mobile-first (Bottom Navbar).
-- **sales_manager**: Gestión de procesos de venta, carritos y pedidos.
+### Módulo: Login (Directiva: build_login.md)
+- **login_manager**: Orquestador visual del formulario y acceso.
+- **auth_authenticator**: Lógica de verificación de credenciales y seguridad PHP.
+- **session_guard**: Middleware de persistencia y protección de rutas.
+
+### Módulo: Main / Dashboard (Directiva: build_system.md)
+- **menu_navigator**: Controlador de estado SPA y ruteo dinámico.
+- **app_orchestrator**: Gestión de ciclo de vida de iframes y modales web.
+- **dashboard_layout**: Definición de contenedores (Placas Maestras) y grilla principal.
+
+### Módulo: Clientes (Directiva: build_clientes.md)
+- **client_manager**: Gestión transaccional (CRUD) y persistencia de datos.
 - **premium_attention**: Automatización de fidelización y difusión vía WhatsApp.
+- **client_validator**: Validación de identidades duplicadas y limpieza de datos (DNI/Tel).
+
+### Módulo: Ventas / Pedidos (Directivas: build_ventas.md / build_pedidos.md)
+- **sales_manager**: Gestión de procesos de venta y carritos.
+- **catalog_manager**: Administración de productos y stock.
+- **billing_helper**: Lógica de cobros, parciales y totales.
 
 ---
 

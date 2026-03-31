@@ -31,3 +31,22 @@ Centralizar la oferta de valor de la consultora, integrando la prestación de se
 
 *   **Prioridad en Dashboard**: Ocupa la posición líder (índice 0) por su relevancia operativa.
 *   **Métricas Transversales**: El sistema reportará el "Servicio más solicitado" y el "Producto de mayor rotación" al tablero de control central.
+
+## Capa 5: Base de Datos (Esquema y Relaciones)
+
+Maneja datos estáticos de valor de negocio (Servicios) y asignación transaccional (Turnos).
+
+### Tabla: `Servicios`
+- **PK**: `IdServicio` (INT, AUTO_INCREMENT)
+- **Campos críticos**:
+  - `Duracion`: (INT) Comentada como duración lógica en "minutos".
+  - `Precio`: DECIMAL(10, 2).
+  - `Estado`: TINYINT (1) Activo por defecto.
+
+### Tabla: `Turnos`
+- **PK**: `IdTurno` (INT, AUTO_INCREMENT)
+- **FK1**: `IdCliente` (**ON DELETE CASCADE**).
+- **FK2**: `IdServicio` (**ON DELETE CASCADE**).
+- **Campos críticos**:
+  - `FechaTurno`: DATETIME obligatorio, dicta el cronograma.
+  - `Estado`: TINYINT `1`: Pendiente, `2`: Completado, `0`: Cancelado.

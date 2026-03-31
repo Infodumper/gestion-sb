@@ -1,31 +1,29 @@
 <!-- Modal Nuevo Cliente -->
-<div id="modalNuevoCliente" class="hidden fixed inset-0 z-[100] bg-indigo-950/40 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
+<div id="modalNuevoCliente" class="hidden fixed inset-0 z-[300] bg-emerald-950/40 backdrop-blur-sm p-2 sm:p-4">
     <div class="max-w-2xl w-full card-premium overflow-hidden animate-in fade-in zoom-in duration-300">
-        <!-- Close Button -->
-        <button type="button" onclick="closeClientModal()" class="absolute top-4 sm:top-6 right-4 sm:right-6 text-gray-400 hover:text-gray-600 z-10 transition text-3xl">&times;</button>
-
-        <div class="bg-orange-50 px-4 py-6 sm:py-8 border-b border-orange-100 text-center">
-            <h2 class="brand-title text-3xl sm:text-4xl mb-2 text-orange-950">Nuevo Cliente</h2>
-            <p class="text-orange-600 font-bold text-xs sm:text-sm uppercase tracking-widest">Ficha de Alta Rápida</p>
+        <div class="modal-header-premium">
+            <h2 class="modal-title-premium italic">Nuevo Cliente</h2>
+            <!-- Close Button -->
+            <button type="button" onclick="closeClientModal()" class="btn-close-premium" title="Cerrar">&times;</button>
         </div>
 
-        <form id="formNuevoCliente" class="p-4 sm:p-8 space-y-4 sm:space-y-6">
+        <form id="formNuevoCliente" class="modal-form-container p-4 sm:p-8 space-y-4 sm:space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 text-left">
                 <!-- Nombre -->
                 <div>
-                    <label class="block text-xs font-bold text-indigo-900 uppercase mb-2">Nombre</label>
+                    <label class="block text-xs font-bold text-emerald-950 uppercase mb-2">Nombre</label>
                     <input type="text" name="nombre" class="input-premium" placeholder="Ej. Ana (Opcional)">
                 </div>
                 <!-- Apellido -->
                 <div>
-                    <label class="block text-xs font-bold text-indigo-900 uppercase mb-2">Apellido</label>
+                    <label class="block text-xs font-bold text-emerald-950 uppercase mb-2">Apellido</label>
                     <input type="text" name="apellido" class="input-premium" placeholder="Ej. López (Opcional)">
                 </div>
                 
-                <!-- Teléfono (Requerido) -->
+                <!-- Teléfono (Opcional) -->
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Teléfono *</label>
-                    <input type="text" name="telefono" id="inputTelNuevo" placeholder="Ej: 2231122333" class="input-premium border-orange-200 focus:border-orange-500 focus:ring-orange-200" required>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Teléfono <span class="text-gray-400 font-normal normal-case">(Opcional)</span></label>
+                    <input type="text" name="telefono" id="inputTelNuevo" placeholder="Ej: 2231122333" class="input-premium">
                     <p id="telWarningNuevo" class="text-red-500 text-xs font-bold mt-1 hidden"></p>
                 </div>
                 <!-- DNI -->
@@ -56,13 +54,13 @@
                 <div class="md:col-span-2 flex flex-col space-y-4 pt-2">
                     <label class="inline-flex items-center cursor-pointer group">
                         <input type="checkbox" name="Promociones" value="1" checked class="w-5 h-5 text-orange-500 rounded border-gray-300 focus:ring-orange-500">
-                        <span class="ml-3 text-sm text-indigo-900 font-bold">Desea recibir promociones y novedades</span>
+                        <span class="ml-3 text-sm text-emerald-950 font-bold">Desea recibir promociones y novedades</span>
                     </label>
                 </div>
             </div>
 
             <div class="pt-4 sm:pt-6 border-t border-gray-100 mt-2">
-                <button type="submit" id="btnGuardar" class="w-full btn-premium bg-indigo-900 hover:bg-orange-500 text-lg sm:text-xl shadow-xl transition-colors">
+                <button type="submit" id="btnGuardar" class="w-full btn-premium text-lg sm:text-xl">
                     GUARDAR CLIENTE 📁
                 </button>
             </div>
@@ -129,7 +127,7 @@ document.getElementById('formNuevoCliente').addEventListener('submit', function(
                 title: '¡Éxito!',
                 text: data.message,
                 icon: 'success',
-                confirmButtonColor: '#f28d1a'
+                confirmButtonColor: '#00a876'
             }).then(() => {
                 closeClientModal();
                 this.reset();
@@ -140,7 +138,7 @@ document.getElementById('formNuevoCliente').addEventListener('submit', function(
                 title: 'Atención',
                 text: data.message,
                 icon: 'warning',
-                confirmButtonColor: '#f28d1a'
+                confirmButtonColor: '#00a876'
             });
         }
         btn.disabled = false;

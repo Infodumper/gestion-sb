@@ -6,6 +6,7 @@ if (!isset($_SESSION['userid'])) {
 }
 require_once '../../../includes/db.php';
 require_once '../../../includes/security.php';
+require_once '../../../includes/utils.php';
 header('Content-Type: text/html; charset=utf-8');
 
 // --- Lógica de Filtros y Búsqueda ---
@@ -55,7 +56,7 @@ function make_sort_link($col, $label, $current_col, $current_order, $current_fil
     }
     $url = "?sort=$col&order=$new_order";
     if (!empty($current_filter)) $url .= "&filtro=" . urlencode($current_filter);
-    return "<a href=\"$url\" class=\"inline-flex items-center hover:text-orange-500 transition-colors uppercase tracking-wider\">$label<span class='ml-1 text-[10px]'>$icon</span></a>";
+    return "<a href=\"$url\" class=\"inline-flex items-center hover:text-emerald-500 transition-colors uppercase tracking-wider\">$label<span class='ml-1 text-[10px]'>$icon</span></a>";
 }
 ?>
 <!DOCTYPE html>
@@ -66,7 +67,7 @@ function make_sort_link($col, $label, $current_col, $current_order, $current_fil
     <title>Directorio de Clientes | Stefy Barroso</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Libre+Baskerville:ital,wght@1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../../styles/main.css">
+    <link rel="stylesheet" href="../../../styles/main.css?v=4.0">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         .table-custom { border-collapse: separate; border-spacing: 0 0.5rem; }
@@ -75,99 +76,81 @@ function make_sort_link($col, $label, $current_col, $current_order, $current_fil
         .table-custom tbody tr:hover { transform: scale(1.005); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
     </style>
 </head>
-<body class="min-h-screen pt-12 pb-4 px-2 sm:px-10">
+<body class="min-h-screen p-1 sm:p-4">
     <script>
         if (window.self !== window.top) {
             document.body.classList.add('is-iframe');
         }
     </script>
     <style>
-        .is-iframe .back-panel-link { display: none !important; }
-        .is-iframe { background-color: white !important; py: 2rem !important; }
+        body.is-iframe { border-radius: 0 !important; background-color: white !important; overflow-y: auto !important; }
+        .is-iframe .max-w-7xl { padding: 0 !important; }
+        .is-iframe .app-header-premium { display: block !important; }
+        .app-header-premium { display: none; } /* Solo visible en iframe mode */
     </style>
 
     <div class="max-w-7xl mx-auto">
-        <!-- Header Simplificado (Index Navbar visible arriba) -->
-        <div class="h-4"></div>
-
-        <div class="flex flex-row justify-between items-baseline mb-4 gap-2">
-            <h2 class="brand-title text-4xl ml-2">Clientes</h2>
-            <div class="flex items-center gap-2">
-                <button onclick="openClientModal()" class="btn-premium flex items-center shadow-lg px-4 py-2 text-sm">
-                    <span class="mr-1">➕</span> <span class="hidden sm:inline">NUEVO</span><span class="sm:hidden">NUEVO</span>
-                </button>
-                <button onclick="window.parent.closeAppModal()" class="w-10 h-10 bg-white border border-gray-200 flex items-center justify-center rounded-full text-2xl hover:bg-gray-100 transition-all text-gray-500 shadow-sm" title="Cerrar">
-                    &times;
-                </button>
-            </div>
-        </div>
-
-        <!-- Search Card -->
-        <div class="bg-white rounded-2xl p-3 shadow-lg border border-gray-100 mb-4 flex items-center">
-            <form class="flex-1 relative" method="GET">
-                <input type="text" name="filtro" value="<?= htmlspecialchars($filtro) ?>" 
-                       class="w-full bg-gray-50 border-none rounded-xl py-2 pl-10 pr-4 text-indigo-900 font-medium focus:ring-1 focus:ring-purple-400 outline-none transition-all shadow-inner text-sm" 
-                       placeholder="Buscar...">
-                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-lg">🔍</span>
-            </form>
-        </div>
-
-        <!-- Contenedor "Chapa" Principal -->
-        <div class="bg-gray-50/50 rounded-3xl p-2 md:p-6 shadow-none border-none overflow-hidden">
+        <!-- PLACA MAESTRA: Directorio de Clientes -->
+        <div class="master-placa bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-emerald-100 flex flex-col mb-10 animate-in fade-in duration-300">
             
-            <!-- Listado en "Chapitas" -->
-            <div class="flex flex-col gap-3">
-                <?php if (empty($clientes)): ?>
-                    <div class="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200">
-                        <p class="text-gray-400 font-medium italic text-lg">No se encontraron clientes.</p>
-                    </div>
-                <?php else: ?>
-                    <?php foreach($clientes as $c): ?>
-                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 relative group cursor-pointer hover:shadow-md transition-all flex flex-col sm:flex-row justify-between" onclick="showDetails(<?= $c['IdCliente'] ?>)">
-                        
-                        <!-- Barra de Acento Izquierdo -->
-                        <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-orange-400 rounded-l-2xl group-hover:bg-purple-500 transition-colors"></div>
-                        
-                        <!-- Bloque de Info Principal -->
-                        <div class="pl-2 flex-1">
-                            <h3 class="font-bold text-[1.15rem] text-indigo-900 leading-snug">
-                                <?= htmlspecialchars($c['Apellido']) ?> <?= htmlspecialchars($c['Nombre']) ?>
-                            </h3>
-                            <p class="text-indigo-900/70 font-bold tracking-widest text-sm mt-1">
-                                <?= htmlspecialchars($c['Telefono']) ?>
-                            </p>
-                            
-                            <!-- Metadatos de la chapita (DNI, Cumpleaños) -->
-                            <div class="flex flex-wrap gap-4 mt-3 pt-3 border-t border-slate-50 text-xs font-semibold text-slate-400 uppercase">
-                                <?php if($c['Dni']): ?>
-                                    <span class="flex items-center gap-1">ID: <?= htmlspecialchars($c['Dni']) ?></span>
-                                <?php endif; ?>
-                                <?php if($c['FechaNac']): ?>
-                                    <span class="flex items-center gap-1 text-orange-500">BDAY: <?= date('d/m', strtotime($c['FechaNac'])) ?></span>
-                                <?php endif; ?>
+            <!-- Cabecera Maestra Estándar -->
+            <?php render_premium_header('Clientes', 'openClientModal()'); ?>
+
+            <!-- Contenido Principal -->
+            <div class="p-4 sm:p-8">
+                <!-- Barra de Búsqueda Premium -->
+                <div class="search-container-premium !mb-8 relative max-w-2xl mx-auto">
+                    <form method="GET" class="flex items-center">
+                        <input type="text" name="filtro" value="<?= htmlspecialchars($filtro) ?>" 
+                               class="search-input-premium w-full !py-4 !pl-12 !rounded-[2rem] shadow-sm focus:shadow-md" 
+                               placeholder="Buscar por nombre, apellido, DNI...">
+                        <span class="absolute left-4 text-xl opacity-30">🔍</span>
+                        <?php if(!empty($filtro)): ?>
+                            <a href="?" class="absolute right-4 text-gray-300 hover:text-red-500 text-2xl">&times;</a>
+                        <?php endif; ?>
+                    </form>
+                </div>
+
+                <!-- Listado en Subplacas (Sistema de Placas Independientes) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <?php if (empty($clientes)): ?>
+                        <div class="col-span-full py-20 text-center bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-200">
+                            <p class="text-gray-400 italic text-lg">No se hallaron clientes.</p>
+                        </div>
+                    <?php else: ?>
+                        <?php foreach($clientes as $c): ?>
+                        <div class="subplaca-adn !mb-0 cursor-pointer" onclick="showDetails(<?= $c['IdCliente'] ?>)">
+                            <div class="subplaca-acento bg-emerald-500"></div>
+                            <div class="subplaca-cuerpo">
+                                <div class="subplaca-info">
+                                    <h3 class="font-bold text-emerald-950 text-[1.15rem] leading-tight"><?= s($c['Apellido']) ?> <?= s($c['Nombre']) ?></h3>
+                                    <p class="text-[11px] font-bold text-emerald-600 mt-0.5 tracking-wider"><?= s($c['Telefono']) ?></p>
+                                    <p class="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-tight">
+                                        <?= (int)$c['Dni'] > 0 ? 'DNI: '.s($c['Dni']) : 'SIN DNI' ?>
+                                    </p>
+                                </div>
+                                <div class="subplaca-acciones !flex-row !items-center !gap-2">
+                                     <button onclick="event.stopPropagation(); openEditClient(<?= $c['IdCliente'] ?>)" 
+                                             class="w-8 h-8 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center hover:bg-emerald-700 hover:text-white transition-all shadow-sm">
+                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                     </button>
+                                     <a href="https://wa.me/<?= preg_replace('/[^0-9]/','',$c['Telefono']) ?>" target="_blank" onclick="event.stopPropagation();" 
+                                        class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center shadow-sm hover:scale-110 active:scale-95 transition-all">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.417-.003 6.557-5.338 11.892-11.893 11.892-1.997-.001-3.951-.5-5.688-1.448l-6.305 1.652zm6.599-3.835c1.52.909 3.125 1.388 4.773 1.389 5.233.002 9.491-4.258 9.493-9.492.001-2.533-.986-4.915-2.778-6.708s-4.177-2.779-6.709-2.78c-5.235 0-9.492 4.258-9.493 9.493-.001 1.761.488 3.476 1.415 4.974l-1.08 3.946 4.079-1.071zm9.178-6.035c-.255-.127-1.503-.734-1.737-.82-.233-.086-.403-.127-.573.127s-.657.82-.805.99c-.148.17-.297.191-.553.064-1.831-.916-2.825-1.526-3.951-3.456-.255-.436.255-.404.729-1.353.078-.159.039-.297-.021-.423-.06-.126-.573-1.38-.785-1.889-.208-.499-.42-.43-.573-.438-.148-.007-.318-.008-.488-.008s-.446.063-.679.297c-.234.233-.892.871-.892 2.122 0 1.25.912 2.46 1.039 2.63.127.17 1.794 2.738 4.346 3.84.607.262 1.08.419 1.448.536.611.194 1.167.166 1.607.101.491-.072 1.503-.615 1.714-1.209.211-.595.211-1.104.148-1.209-.063-.105-.233-.148-.488-.275z"/></svg>
+                                     </a>
+                                </div>
                             </div>
                         </div>
-
-                        <!-- Panel de Acciones Celular (Botones) -->
-                        <div class="flex sm:flex-col justify-end items-center sm:items-end gap-2 mt-4 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-0 border-slate-50">
-                            <button onclick="event.stopPropagation(); openEditClient(<?= $c['IdCliente'] ?>)" class="w-12 h-12 bg-slate-50 text-slate-600 rounded-xl flex items-center justify-center hover:bg-orange-100 transition-all text-xl" title="Editar Ficha">
-                                ✏️
-                            </button>
-                            <a href="https://wa.me/<?= preg_replace('/[^0-9]/','',$c['Telefono']) ?>" target="_blank" onclick="event.stopPropagation();" class="flex-1 sm:flex-none w-full sm:w-12 h-12 bg-green-500 text-white rounded-xl flex items-center justify-center hover:bg-green-600 transition-all text-2xl shadow-sm" title="WhatsApp Directo">
-                                💬
-                            </a>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
 
             <!-- Pagination -->
             <?php if ($total_pages > 1): ?>
             <div class="mt-10 flex justify-center gap-2">
                 <?php for($i=1; $i<=$total_pages; $i++): ?>
                     <a href="?page=<?= $i ?>&filtro=<?= urlencode($filtro) ?>&sort=<?= $sort_col ?>&order=<?= $sort_order ?>" 
-                       class="w-12 h-12 flex items-center justify-center rounded-2xl font-bold transition-all <?= ($i == $page) ? 'bg-indigo-900 text-white shadow-lg scale-110' : 'bg-gray-50 text-indigo-900 hover:bg-orange-100 shadow-sm' ?>">
+                       class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-2xl font-bold transition-all <?= ($i == $page) ? 'bg-emerald-700 text-white shadow-lg scale-110' : 'bg-gray-50 text-emerald-900 hover:bg-emerald-50 shadow-sm' ?>">
                         <?= $i ?>
                     </a>
                 <?php endfor; ?>
@@ -189,25 +172,25 @@ function make_sort_link($col, $label, $current_col, $current_order, $current_fil
     </div>
 
     <!-- Modal Detalle Cliente -->
-    <div id="modalDetalle" class="hidden fixed inset-0 z-[110] bg-indigo-950/40 backdrop-blur-sm flex items-center justify-center p-4">
+    <div id="modalDetalle" class="hidden fixed inset-0 z-[110] bg-emerald-950/40 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="max-w-2xl w-full card-premium overflow-hidden animate-in fade-in zoom-in duration-300">
-             <button onclick="closeModal('modalDetalle')" class="absolute top-6 right-6 text-gray-400 hover:text-gray-600 z-10 transition text-3xl">&times;</button>
-             <div class="bg-indigo-50 px-8 py-10 border-b border-indigo-100 text-center">
-                <div id="detInitials" class="w-20 h-20 bg-indigo-900 text-white rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-4 border-4 border-white shadow-xl"></div>
-                <h2 id="detNombre" class="brand-title text-4xl mb-2 text-indigo-900"></h2>
-                <p id="detTelefono" class="text-indigo-900/60 font-bold tracking-widest"></p>
+             <div class="bg-emerald-50 px-8 py-10 border-b border-indigo-100 text-center relative">
+                <button type="button" onclick="closeModal('modalDetalle')" class="btn-close-premium" title="Cerrar">&times;</button>
+                <div id="detInitials" class="w-20 h-20 bg-emerald-950 text-white rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-4 border-4 border-white shadow-xl"></div>
+                <h2 id="detNombre" class="brand-title text-4xl mb-2 text-emerald-950"></h2>
+                <p id="detTelefono" class="text-emerald-950/60 font-bold tracking-widest"></p>
             </div>
             <div class="p-8 grid grid-cols-2 gap-8 text-left">
                 <div>
-                   <label class="block text-xs font-bold text-indigo-900/40 uppercase mb-1">DNI</label>
+                   <label class="block text-xs font-bold text-emerald-950/40 uppercase mb-1">DNI</label>
                    <p id="detDni" class="font-bold text-lg"></p>
                 </div>
                 <div>
-                   <label class="block text-xs font-bold text-indigo-900/40 uppercase mb-1">Cumpleaños</label>
+                   <label class="block text-xs font-bold text-emerald-950/40 uppercase mb-1">Cumpleaños</label>
                    <p id="detCumple" class="font-bold text-lg"></p>
                 </div>
                 <div class="col-span-2 bg-gray-50 p-6 rounded-3xl">
-                   <h4 class="font-bold text-indigo-900 mb-4 flex items-center">🛍️ ÚLTIMAS VENTAS</h4>
+                   <h4 class="font-bold text-emerald-950 mb-4 flex items-center">🛍️ ÚLTIMAS VENTAS</h4>
                    <div id="detHistory" class="space-y-3">
                        <!-- AJAX generated -->
                    </div>
@@ -252,7 +235,7 @@ function make_sort_link($col, $label, $current_col, $current_order, $current_fil
                                 <div class="flex justify-between items-center bg-white p-3 rounded-2xl shadow-sm">
                                     <span class="font-bold">#${h.id}</span>
                                     <span class="text-xs text-gray-400 font-bold">${h.fecha}</span>
-                                    <span class="font-black text-indigo-900">$${h.total}</span>
+                                    <span class="font-black text-emerald-950">$${h.total}</span>
                                 </div>
                             `;
                         });

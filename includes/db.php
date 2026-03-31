@@ -4,11 +4,11 @@
  * Usando credenciales directas para evitar bloqueos de InfinityFree
  */
 
-require_once 'load_env.php';
+require_once __DIR__ . '/load_env.php';
 
 // Leer de $_ENV (donde load_env.php pone los datos)
 $host = $_ENV['DB_HOST'] ?? 'localhost';
-$db   = $_ENV['DB_NAME'] ?? 'consultora_belleza';
+$db   = $_ENV['DB_NAME'] ?? 'gestion_sb';
 $user = $_ENV['DB_USER'] ?? 'root';
 $pass = $_ENV['DB_PASS'] ?? '';
 $charset = 'utf8mb4';

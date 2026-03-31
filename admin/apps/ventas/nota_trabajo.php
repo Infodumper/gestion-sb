@@ -6,6 +6,7 @@ if (!isset($_SESSION['userid'])) {
 }
 require_once '../../../includes/db.php';
 require_once '../../../includes/security.php';
+require_once '../../../includes/utils.php';
 header('Content-Type: text/html; charset=utf-8');
 $fecha_hoy = date('d/m/Y');
 ?>
@@ -16,7 +17,7 @@ $fecha_hoy = date('d/m/Y');
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nuevo Pedido</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="../../../styles/main.css">
+    <link rel="stylesheet" href="../../../styles/main.css?v=4.0">
     <style>
         .input-line {
             background-color: transparent;
@@ -32,10 +33,8 @@ $fecha_hoy = date('d/m/Y');
             background-color: var(--color-fondo-pagina);
         }
         
-        /* Ocultar flechas de input number */
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type=number] { -moz-appearance: textfield; }
+        /* Mostrar flechas de input number (habilitadas a pedido del usuario) */
+        input[type=number] { -moz-appearance: number-input; }
 
         .dropdown-item:hover { background-color: var(--color-fondo-pagina); }
         
@@ -44,23 +43,15 @@ $fecha_hoy = date('d/m/Y');
         }
     </style>
 </head>
-<body class="min-h-screen pt-4 sm:pt-12 pb-4 px-2 sm:px-10">
+<body class="bg-gray-50 min-h-screen p-4 sm:p-8">
 
-    <div class="max-w-4xl mx-auto bg-white sm:rounded-3xl p-0 sm:p-6 card-shadow border-0 sm:border border-emerald-50">
-        <!-- Header -->
-        <header class="flex justify-between items-center mb-4 px-2 sm:px-0">
-            <div class="flex items-center gap-4">
-                <h1 class="brand-title text-3xl sm:text-4xl" style="color: var(--color-marca-principal);">Pedido</h1>
-            </div>
-            <div class="flex items-center gap-4">
-                <span class="hidden sm:inline-block text-base font-bold px-3 py-1 bg-gray-50 rounded-lg text-emerald-900/40 uppercase tracking-widest text-[10px]" style="background-color: transparent;"><?php echo date('d/y'); ?></span>
-                <button onclick="window.parent.closeAppModal()" class="w-10 h-10 bg-white border border-gray-200 flex items-center justify-center rounded-full text-2xl hover:bg-gray-100 transition-all text-gray-500 shadow-sm" title="Cerrar">
-                    &times;
-                </button>
-            </div>
-        </header>
+    <div class="max-w-6xl mx-auto">
+        <!-- Cabecera Estilo Pop-up (Subplaca) -->
+        <!-- Cabecera Estilo Pop-up (Centralizada) -->
+        <?php render_premium_header('Pedido'); ?>
 
-        <!-- Formulario Info Base -->
+        <div class="max-w-5xl mx-auto bg-white rounded-3xl p-4 sm:p-6 card-shadow border border-emerald-50">
+            <!-- Formulario Info Base -->
         <div class="mb-2 px-4 sm:px-0">
             <div class="relative max-w-xl">
                 <input type="text" id="cliente_busqueda" class="input-line font-bold text-xl" style="color: #000000;" placeholder="Cliente" autocomplete="off">
@@ -104,7 +95,7 @@ $fecha_hoy = date('d/m/Y');
                             <div class="w-full flex flex-row items-center gap-2 md:gap-4">
                                 <!-- Cantidad -->
                                 <div class="w-16">
-                                    <input type="number" class="input-line text-center font-bold input-cantidad" style="color: var(--color-marca-principal);" value="1" min="1" placeholder="Cant.">
+                                    <input type="number" class="input-line text-center font-bold input-cantidad text-xl" style="color: var(--color-marca-principal);" value="" min="0" placeholder="0">
                                 </div>
 
                                 <!-- Stock -->
@@ -153,6 +144,7 @@ $fecha_hoy = date('d/m/Y');
             <button onclick="guardarNota()" class="w-full sm:w-auto px-12 py-4 bg-[var(--color-marca-principal)] text-white rounded-xl text-lg font-bold shadow-lg hover:opacity-90 active:scale-95 transition-all">
                 FINALIZAR PEDIDO
             </button>
+        </div>
         </div>
     </div>
 
@@ -209,7 +201,7 @@ $fecha_hoy = date('d/m/Y');
             newRow.querySelector('.input-codigo').value = '';
             newRow.querySelector('.input-servicio').value = '';
             newRow.querySelector('.servicio-id').value = '';
-            newRow.querySelector('.input-cantidad').value = '1';
+            newRow.querySelector('.input-cantidad').value = '';
             newRow.querySelector('.input-precio').value = '';
             newRow.querySelector('.input-stock').value = '-';
             newRow.querySelector('.input-stock').style.backgroundColor = '#f8fafc';
@@ -445,7 +437,11 @@ $fecha_hoy = date('d/m/Y');
                         icon: 'success',
                         confirmButtonColor: '#00a876'
                     }).then(() => {
-                        window.location.reload();
+                        if (window.parent && window.parent.closeAppModal) {
+                            window.parent.closeAppModal();
+                        } else {
+                            window.location.href = '../../../index.php';
+                        }
                     });
                 } else {
                     Swal.fire('Error', data.message, 'error');

@@ -1,10 +1,10 @@
-# Arquitectura y Estándares de Sistema – "Consultora"
+# Arquitectura y Estándares de Sistema – "Gestion SB"
 
 > Este documento contiene los protocolos técnicos y de arquitectura. Aplica a todo entorno de orquestación de agentes y a los pipelines de desarrollo automatizado (CLAUDE, GEMINI, etc).
 
 ## 1. Alcance Operativo
 
-El entorno "Consultora" opera bajo un modelo de ingeniería automatizada para la construcción de plataformas digitales. Los productos resultantes deben cumplir estrictamente con los estándares de nivel de producción, garantizando alta disponibilidad, mantenibilidad arquitectónica, rendimiento óptimo en despliegue y adherencia a los lineamientos UI/UX corporativos.
+El entorno "Gestion SB" opera bajo un modelo de ingeniería automatizada para la construcción de plataformas digitales. Los productos resultantes deben cumplir estrictamente con los estándares de nivel de producción, garantizando alta disponibilidad, mantenibilidad arquitectónica, rendimiento óptimo en despliegue y adherencia a los lineamientos UI/UX corporativos.
 
 ## 2. Arquitectura de 4 Capas
 
@@ -30,17 +30,18 @@ El ecosistema opera sobre una topología de cuatro capas, definidas para garanti
 
 ### Capa 4: Observabilidad de la Plataforma
 - Visibilidad del backend mediante un nodo de monitoreo dedicado (`dashboard/app.py`).
-- Audita rendimiento, transacciones, latencias de despliegue y el estado de bases de datos locales (`logs/consultora.db`).
+- Audita rendimiento, transacciones, latencias de despliegue y el estado de bases de datos locales (`logs/gestion_sb.db`).
 
 ## 3. Estándares Técnicos Frontend (Infraestructura Móvil)
 
 Todo módulo del ecosistema debe converger obligatoriamente hacia las normativas estandarizadas de frontend y acceso remoto:
 
 ### 3.1. Estructura y Rendering
-- **Arquitectura SPA (Single Page Application)**: Dominio sobre los tiempos de carga en dispositivos móviles restringiendo imperativamente el uso indiscriminado de frameworks. Navegación enrutada asíncronamente.
-- **Topología UI "ADN Chapitas"**: Modelo de interfaz estandarizado con distribución en contenedores maestros ("chapas") y listados funcionales ("chapitas").
+- **Arquitectura de Placas Independientes de Información**: Modelo de interfaz estandarizado con distribución en contenedores maestros ("Placas Maestras") y listados funcionales ("Subplacas" o placas de información).
+- **Regla de las Subplacas**: Está terminantemente prohibido mostrar datos sueltos o texto flotante en los listados. Cada entidad (Cliente, Producto, Venta, etc.) debe habitar dentro de su propia "Subplaca": una tarjeta blanca (`bg-white`), con bordes redondeados (`rounded-[1.5rem]`), sombra suave (`shadow-sm`) y efectos de hover suaves.
 - **Hojas de Estilo Globales**: Centralización estricta (`colores.css`). Está prohibido explícitamente el uso de "inline styles", reglas flotantes sueltas y declaración de componentes con clases CSS redundantes no globalizadas.
 - **UX en Móviles**: Implementación reglamentaria de paneles de navegación inferior (Bottom Navbars), áreas táctiles optimizadas y soporte integral Claro/Oscuro. Empleo prioritario de **Tailwind CSS**.
+- **Regla de la "X" (Cierre)**: Se establece el estándar de un solo botón de cierre visible. En vistas principales y módulos integrados, la "X" debe ubicarse únicamente en la zona inferior (Bottom Navbar o acción persistente). Solo las ventanas secundarias de tipo **pop-up o modales** deben incorporar el botón "X" en la cinta del título (encabezado superior derecho del contenedor).
 
 ### 3.2. Localización y Refactorización
 - Idioma de despliegue, documentación de la UI y variables de salida debe encontrarse puramente en idioma español. Nomenclatura base de sistemas anglosajona admitida únicamente en la sintaxis profunda del código.

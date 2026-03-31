@@ -1,8 +1,8 @@
-# 🚀 Guía Maestra de GitHub y Branches
+# 🚀 Guía Maestra de GitHub y Branches (SSH Edition)
 
 ¡Excelente iniciativa! Dominar las "branches" (ramas) es lo que separa a un programador que "pica código" de un **desarrollador profesional**. 
 
-Aquí tienes la guía definitiva en español para el entorno de **Antigravity**.
+Aquí tienes la guía definitiva actualizada para el entorno de **Antigravity**.
 
 ---
 
@@ -20,13 +20,12 @@ Un **Pull Request** no es un comando de Git, es una funcionalidad de **GitHub**.
 Es una **propuesta de cambio**. Cuando terminas tu trabajo en una rama (por ejemplo, `feature-nuevo-login`), "pides" permiso para integrar ese código en la rama `main`.
 - Permite revisar el código antes de mezclarlo.
 - Sirve como registro de qué se hizo y por qué.
-- Es el lugar ideal para que la IA (como yo) revise tu código antes de que llegue a producción.
 
 ---
 
-## 2. El Ciclo de Vida del Trabajo (Workflow)
+## 2. El Ciclo de Vida del Trabajo (Workflow SSL/SSH)
 
-Este es el proceso que seguiremos a partir de ahora:
+Ya tenemos configurado **SSH** para mayor seguridad y comodidad (sin pedir contraseñas). El proceso que seguiremos a partir de ahora es:
 
 1.  **Estar en `main`:** Asegurarte de tener lo último del "tronco".
 2.  **Crear una rama:** `git checkout -b feature-mi-idea` (creas un mundo paralelo).
@@ -37,30 +36,7 @@ Este es el proceso que seguiremos a partir de ahora:
 
 ---
 
-## 3. Preparación Inicial (Pasos a seguir)
-
-Actualmente, el proyecto `consultora` **no tiene Git inicializado**. Para empezar, deberías seguir estos pasos:
-
-### Paso A: Inicializar Git Local
-En la terminal de VS Code:
-```powershell
-git init
-git add .
-git commit -m "Initial commit: Proyecto base"
-```
-
-### Paso B: Conectar con GitHub
-1. Crea un repositorio en [GitHub.com](https://github.com) llamado `consultora`.
-2. Copia la URL del repo y pégala aquí:
-```powershell
-git remote add origin https://github.com/TU_USUARIO/consultora.git
-git branch -M main
-git push -u origin main
-```
-
----
-
-## 4. Comandos que usarás el 90% del tiempo
+## 3. Comandos que usarás el 90% del tiempo
 
 | Acción | Comando |
 | :--- | :--- |
@@ -69,13 +45,16 @@ git push -u origin main
 | **Saltar a una rama que ya existe** | `git checkout nombre-rama` |
 | **Borrar una rama (con cuidado)** | `git branch -d nombre-rama` |
 | **Ver qué archivos cambiaste** | `git status` |
+| **Guardar cambios localmente** | `git add .` seguido de `git commit -m "Explicación"` |
+| **Actualizar el remoto (SSH)** | `git push origin nombre-rama` |
 
 ---
 
-## 💡 Recomendación de Antigravity
-Cuando trabajemos juntos en una tarea (por ejemplo, corregir la base de datos), **siempre** te sugeriré:
-> "Che, ¿creamos una rama `fix-db` para trabajar esto seguro?"
+## 💡 Configuración SSH del Proyecto (Actualizado)
 
-De esa forma, si algo sale mal, simplemente borramos la rama y el `main` sigue intacto.
+Si por alguna razón necesitas reconectar el repositorio, usa el comando SSH:
+`git remote set-url origin git@github.com:Infodumper/gestion-sb.git`
 
-¿Te gustaría que te ayude a inicializar el repositorio ahora mismo?
+Esto asegura que la comunicación entre tu PC y GitHub sea cifrada y automática.
+
+¿Te gustaría que trabajemos en una rama nueva para la siguiente funcionalidad?

@@ -1,0 +1,42 @@
+name: PR Validation Suite
+
+on:
+  pull_request:
+    branches: [ main, "feat-*" ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo, pdo_mysql
+
+      - name: PHP Syntax Check (Lint)
+        run: find . -name "*.php" -not -path "*/node_modules/*" -not -path "*/vendor/*" -print0 | xargs -0 -n1 php -l
+
+      - name: Prepare Test Environment (Mock DB)
+        run: |
+          # Simular el archivo de conexión si no existe en el runner
+          mkdir -p includes
+          if [ ! -f "includes/db.php" ]; then
+            echo "<?php \$pdo = new PDO('sqlite::memory:');" > includes/db.php
+          fi
+
+      - name: Execute Test Suite
+        id: run-tests
+        run: |
+          if [ -f "_debug/tests/run_main.php" ]; then
+            php _debug/tests/run_main.php
+          else
+            echo "Skipping tests, runner not found."
+          fi
+
+      - name: Completion Status
+        if: always()
+        run: echo "PR Validation workflow completed."
