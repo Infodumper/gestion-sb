@@ -331,7 +331,7 @@
             </div>
         </div>
         <div class="w-full max-w-7xl mx-auto px-2 lg:px-5 mt-4 text-center text-gray-500 text-xs">
-            <p>&copy; 2026 Stefy Barroso - Consultora de Belleza. Todos los derechos reservados.</p>
+            <p>&copy; 2026 Ignacio Vizoso - Consultor Tecnológico. Todos los derechos reservados.</p>
         </div>
     </footer>
 
