@@ -1,0 +1,61 @@
+/* =========================================================================
+   ESTÁNDARES DE DISEÑO: LANDING PAGE (SISTEMA DE PLACAS Y DESBORDAMIENTO)
+   =========================================================================
+   
+   HISTORIAL DE SESIÓN (DOCUMENTACIÓN ARQUITECTÓNICA):
+   1. Refactorización a Placas Independientes Edge-to-Edge:
+      - Se abandonó el 'container px-4' tradicional que generaba columnas estrechas en móviles.
+      - Se impuso un contenedor 'w-full max-w-7xl mx-auto px-2 lg:px-5' logrando un lienzo ancho
+        y una percepción premium abarcativa sin scroll muerto izquierdo/derecho.
+        
+   2. Control Absoluto de Desbordamiento Paralelo (Bug-fix):
+      - Se implementó forzosamente la directiva 'overflow-x-hidden' tanto en la etiqueta <html> 
+        como en el <body>. Esto impide de raíz que los navegadores móviles calculen un ancho
+        excedido (viewport hacking) cuando se incrustan manchas visuales, fondos desenfocados,
+        o imágenes con márgenes extraídos (-right-10, absolutes).
+        
+   3. Compresión Vertical de Identidad UX:
+      - Interlineado del texto de marca se compactó a 'leading-[0.85]'.
+      - Los márgenes 'p-5' internos de la Placa 1 (Logo+Nombre) se desacoplaron: 'px-5 py-3'.
+        Esto mantiene la sincronía visual a los costados pero aplasta fuertemente el exceso
+        de aire arriba y abajo.
+      - El logo soporta márgenes en negativo ('-mr-4') para absorber su propio espacio Alpha 
+        (transparente) integrado al PNG y conseguir una simetría matemática con el borde izquierdo.
+
+   4. Footer y Textos Alineados (Clean Code):
+      - Todas las listas anidadas deben heredar y usar explícitamente 'text-left' (incluso
+        bajo un árbol flex de 'items-center'). Centrar las listas hijas desdibuja el filo
+        del texto, destruyendo el profesionalismo ordenado.
+        
+   5. Funciones Removidas:
+      - Botón explícito de 'Login' al CRM ha sido depurado/removido en favor del minimalismo.
+      - Botón de sistema de reserva derivado provisionalmente a API pública de WhatsApp.
+   
+========================================================================= */
+
+/* Utilidades Clases Landing (para reutilizar en otros módulos públicos si es necesario) */
+
+/* Clase de restricción extrema para evitar desbordes horizontales (Usar obligatoriamente root y body) */
+.landing-viewport-lock {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    margin: 0;
+    padding: 0;
+}
+
+/* Reducción forzada paralela de placas frontales (Hero) */
+.landing-placa-header {
+    padding-top: 0.75rem !important;    /* py-3 */
+    padding-bottom: 0.75rem !important; /* py-3 */
+}
+
+/* Alineaciones forzosas en cuadrículas anidadas de Footer */
+.landing-footer-grid {
+    text-align: left !important;
+}
+
+/* Compensación de PNGs orgánicos */
+.png-alpha-fix {
+    margin-right: -1rem; /* -mr-4 */
+}
