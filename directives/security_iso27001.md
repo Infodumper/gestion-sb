@@ -22,6 +22,7 @@ Este documento define las políticas de seguridad de la información para el pro
 *   **Prevención de Inyección**: Uso MANDATORIO de sentencias preparadas (PDO) para toda consulta SQL.
 *   **Sanitización**: Uso de `htmlspecialchars(..., ENT_QUOTES, 'UTF-8')` en todas las salidas HTML dinámicas.
 *   **Validación de Entradas**: Filtrado de datos recibidos vía POST/GET usando `filter_var()` o validaciones manuales estrictas.
+*   **Seguridad CI/CD (GitHub Actions)**: Todo *workflow* estructurado debe declarar explícitamente el bloque `permissions:` configurado con el nivel mínimo necesario (ej. `contents: read`). Se prohíbe delegar en los accesos heredados del repositorio o la organización.
 ## 5. Pruebas y Validación
 
 *   Toda implementación "grande" debe pasar el plan de pruebas definido en `/tests/manual_tests.md`.
