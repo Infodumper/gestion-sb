@@ -19,7 +19,7 @@ if (!$email || !$password) {
 }
 
 try {
-    $stmt = $pdo->prepare("SELECT * FROM DbLogin WHERE Usuario = ? AND Estado = 1 LIMIT 1");
+    $stmt = $pdo->prepare("SELECT * FROM dblogin WHERE Usuario = ? AND Estado = 1 LIMIT 1");
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 

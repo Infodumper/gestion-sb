@@ -1,7 +1,7 @@
 <?php
 require_once '../includes/db.php';
 try {
-    $tableName = 'DbLogin';
+    $tableName = 'dblogin';
     $stmt = $pdo->query("DESC $tableName");
     echo "COLUMNS of $tableName:\n";
     print_r($stmt->fetchAll(PDO::FETCH_ASSOC));
