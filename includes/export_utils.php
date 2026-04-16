@@ -1,6 +1,6 @@
 <?php
 /**
- * Utilidades de Exportación - Consultora
+ * Utilidades de Exportación - Gestión SB
  */
 
 /**

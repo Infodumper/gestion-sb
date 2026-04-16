@@ -3,8 +3,9 @@
     <div class="max-w-2xl w-full card-premium overflow-hidden animate-in fade-in zoom-in duration-300">
         <div class="modal-header-premium">
             <h2 class="modal-title-premium italic">Editar Cliente</h2>
-            <!-- Close Button -->
-            <button type="button" onclick="closeModal('modalEditarCliente')" class="btn-close-premium" title="Cerrar">&times;</button>
+            <button type="button" onclick="closeModal('modalEditarCliente')" class="btn-close-premium group" title="Cerrar">
+                <svg class="w-6 h-6 transition-transform group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
         </div>
 
         <form id="formEditarCliente" class="modal-form-container p-6 sm:p-8 space-y-4 sm:space-y-6">
@@ -63,9 +64,10 @@
                 </div>
             </div>
 
-            <div class="pt-4 sm:pt-8 border-t border-gray-100">
-                <button type="submit" id="btnActualizar" class="w-full btn-premium text-lg sm:text-xl">
-                    SINCRONIZAR CAMBIOS 🔄
+            <div class="pt-4 sm:pt-8 border-t border-gray-100 mt-2">
+                <button type="submit" id="btnActualizar" class="w-full btn-premium flex items-center justify-center gap-3 text-lg py-5">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    <span>SINCRONIZAR CAMBIOS</span>
                 </button>
             </div>
         </form>
@@ -73,86 +75,76 @@
 </div>
 
 <script>
-function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+// ── Modal Editar — funciones públicas ─────────────────────────────────────────
 
-function openEditClient(id) {
-    const isInsideApps = window.location.pathname.includes('apps/clientes');
-    // Si estamos en atencion_cliente.php (CRM) que está en apps/clientes/, el path es ajax_...
-    // Si estamos en ver_clientes.php (Directorio) que también está en apps/clientes/, también.
-    const ajaxPath = 'ajax_get_client_card.php'; // Siempre relativo al script actual si ambos están en la misma carpeta
-
-    fetch(ajaxPath + '?id=' + id)
-    .then(r => r.json())
-    .then(data => {
-        if(data.success) {
-            const c = data.client;
-            document.getElementById('edit_id_cliente').value = c.IdCliente;
-            document.getElementById('edit_nombre').value = c.Nombre;
-            document.getElementById('edit_apellido').value = c.Apellido;
-            document.getElementById('edit_telefono').value = c.Telefono;
-            document.getElementById('edit_dni').value = c.Dni || '';
-            
-            if(c.FechaNac) {
-                const parts = c.FechaNac.split('-'); // YYYY-MM-DD
-                document.getElementById('edit_dia_nac').value = parseInt(parts[2]);
-                document.getElementById('edit_mes_nac').value = parseInt(parts[1]);
-            } else {
-                document.getElementById('edit_dia_nac').value = '';
-                document.getElementById('edit_mes_nac').value = '';
-            }
-
-            document.getElementById('edit_promociones').checked = (c.Promociones == 1);
-            document.getElementById('edit_estado').checked = (c.Estado == 1);
-
-            document.getElementById('modalEditarCliente').classList.remove('hidden');
-        }
-    })
-    .catch(err => {
-        console.error(err);
-        Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo cargar la ficha del cliente' });
-    });
+function cerrarModalEditar() {
+    document.getElementById('modalEditarCliente').classList.add('hidden');
+    document.body.style.overflow = '';
 }
 
-document.getElementById('formEditarCliente').addEventListener('submit', function(e) {
+// Alias de compatibilidad
+function openEditClient(id) { abrirModalEditar(id); }
+
+async function abrirModalEditar(id) {
+    try {
+        const res  = await fetch('ajax_get_client_card.php?id=' + id);
+        const json = await res.json();
+        if (json.status !== 'ok') throw new Error(json.message);
+
+        const c = json.data.client;
+        document.getElementById('edit_id_cliente').value     = c.IdCliente;
+        document.getElementById('edit_nombre').value          = c.Nombre;
+        document.getElementById('edit_apellido').value        = c.Apellido;
+        document.getElementById('edit_telefono').value        = c.Telefono;
+        document.getElementById('edit_dni').value             = c.Dni || '';
+        document.getElementById('edit_promociones').checked   = (c.Promociones == 1);
+        document.getElementById('edit_estado').checked        = (c.Estado == 1);
+
+        if (c.FechaNac) {
+            const parts = c.FechaNac.split('-'); // YYYY-MM-DD
+            document.getElementById('edit_dia_nac').value = parseInt(parts[2]);
+            document.getElementById('edit_mes_nac').value = parseInt(parts[1]);
+        } else {
+            document.getElementById('edit_dia_nac').value = '';
+            document.getElementById('edit_mes_nac').value = '';
+        }
+
+        document.getElementById('modalEditarCliente').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+
+    } catch (err) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo cargar el cliente: ' + err.message });
+    }
+}
+
+document.getElementById('formEditarCliente').addEventListener('submit', async function(e) {
     e.preventDefault();
     const btn = document.getElementById('btnActualizar');
     btn.disabled = true;
-    btn.innerHTML = 'SINCRONIZANDO... ⏳';
+    btn.textContent = 'Guardando...';
 
-    const formData = new FormData(this);
-    const ajaxPath = 'ajax_save_client.php';
+    try {
+        const res  = await fetch('ajax_save_client.php', { method: 'POST', body: new FormData(this) });
+        const json = await res.json();
 
-    fetch(ajaxPath, {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if(data.success) {
-            Swal.fire({
-                title: '¡Actualizado!',
-                text: data.message,
+        if (json.status === 'ok') {
+            await Swal.fire({
                 icon: 'success',
-                confirmButtonColor: '#00a876'
-            }).then(() => {
-                location.reload();
+                title: '¡Actualizado!',
+                text: json.message,
+                timer: 1800,
+                showConfirmButton: false,
             });
+            cerrarModalEditar();
+            location.reload();
         } else {
-            Swal.fire({
-                title: 'Atención',
-                text: data.message,
-                icon: 'warning',
-                confirmButtonColor: '#00a876'
-            });
-            btn.disabled = false;
-            btn.innerHTML = 'SINCRONIZAR CAMBIOS 🔄';
+            Swal.fire({ icon: 'warning', title: 'Atención', text: json.message, confirmButtonText: 'Entendido' });
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire('Error', 'No se pudo guardar los cambios', 'error');
+    } catch (err) {
+        Swal.fire({ icon: 'error', title: 'Error de red', text: 'No se pudo guardar los cambios' });
+    } finally {
         btn.disabled = false;
-        btn.innerHTML = 'SINCRONIZAR CAMBIOS 🔄';
-    });
+        btn.textContent = 'Guardar cambios';
+    }
 });
 </script>

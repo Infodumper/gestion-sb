@@ -1,270 +1,374 @@
 <?php
-session_start();
-if (!isset($_SESSION['userid'])) {
-    header('Location: ../../login.php');
-    exit;
-}
-require_once '../../../includes/db.php';
+/**
+ * Vista: Directorio de Clientes
+ * Módulo: Clientes — Gestion SB
+ * Requisito: security.php como primera línea (check_auth() se ejecuta automáticamente)
+ */
+
 require_once '../../../includes/security.php';
+require_once '../../../includes/db.php';
 require_once '../../../includes/utils.php';
 header('Content-Type: text/html; charset=utf-8');
 
-// --- Lógica de Filtros y Búsqueda ---
-$filtro = $_GET['filtro'] ?? '';
-$sort_col = $_GET['sort'] ?? 'Apellido';
-$sort_order = $_GET['order'] ?? 'ASC';
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$limit = 25;
-$offset = ($page - 1) * $limit;
-
-// Columnas seguras para ordenar
-$allowed_cols = ['Nombre', 'Apellido', 'Telefono', 'Dni', 'FechaNac'];
-if (!in_array($sort_col, $allowed_cols)) $sort_col = 'Apellido';
-$sort_order = strtoupper($sort_order) === 'DESC' ? 'DESC' : 'ASC';
-
+// Carga inicial del servidor — primera página sin filtro
+// (La búsqueda/filtrado posterior se hace vía AJAX desde el cliente)
 try {
-    // 1. Contar Total
-    $where = " WHERE 1=1 ";
-    $params = [];
-    if (!empty($filtro)) {
-        $where .= " AND (Nombre LIKE ? OR Apellido LIKE ? OR Telefono LIKE ? OR Dni LIKE ?)";
-        $f = "%$filtro%";
-        $params = [$f, $f, $f, $f];
-    }
-    
-    $count_sql = "SELECT COUNT(*) FROM clientes $where";
-    $stmt_count = $pdo->prepare($count_sql);
-    $stmt_count->execute($params);
-    $total_rows = $stmt_count->fetchColumn();
-    $total_pages = ceil($total_rows / $limit);
-
-    // 2. Obtener Clientes
-    $sql = "SELECT * FROM clientes $where ORDER BY $sort_col $sort_order LIMIT $limit OFFSET $offset";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute($params);
+    $stmt = $pdo->prepare("
+        SELECT IdCliente, Nombre, Apellido, Telefono, Estado
+        FROM clientes
+        WHERE Estado = 1
+        ORDER BY Apellido ASC, Nombre ASC
+        LIMIT 30
+    ");
+    $stmt->execute();
     $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-} catch (PDOException $e) {
-    $error_db = $e->getMessage();
-}
+    $totalStmt = $pdo->query("SELECT COUNT(*) FROM clientes WHERE Estado = 1");
+    $totalClientes = (int)$totalStmt->fetchColumn();
 
-function make_sort_link($col, $label, $current_col, $current_order, $current_filter) {
-    $new_order = ($current_col === $col && $current_order === 'ASC') ? 'DESC' : 'ASC';
-    $icon = '';
-    if ($current_col === $col) {
-        $icon = ($current_order === 'ASC') ? ' ▲' : ' ▼';
-    }
-    $url = "?sort=$col&order=$new_order";
-    if (!empty($current_filter)) $url .= "&filtro=" . urlencode($current_filter);
-    return "<a href=\"$url\" class=\"inline-flex items-center hover:text-emerald-500 transition-colors uppercase tracking-wider\">$label<span class='ml-1 text-[10px]'>$icon</span></a>";
+} catch (PDOException $e) {
+    $clientes = [];
+    $totalClientes = 0;
+    log_event('ERROR', $e->getMessage(), __FILE__);
 }
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Directorio de Clientes | Stefy Barroso</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Clientes — Gestion SB</title>
+    <link rel="stylesheet" href="../../../styles/colores.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Libre+Baskerville:ital,wght@1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../../styles/main.css?v=4.0">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-        .table-custom { border-collapse: separate; border-spacing: 0 0.5rem; }
-        .table-custom tr { transition: all 0.2s; }
-        .table-custom thead th { border-bottom: 2px solid #e2e8f0; }
-        .table-custom tbody tr:hover { transform: scale(1.005); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-    </style>
 </head>
-<body class="min-h-screen p-1 sm:p-4">
-    <script>
-        if (window.self !== window.top) {
-            document.body.classList.add('is-iframe');
-        }
-    </script>
-    <style>
-        body.is-iframe { border-radius: 0 !important; background-color: white !important; overflow-y: auto !important; }
-        .is-iframe .max-w-7xl { padding: 0 !important; }
-        .is-iframe .app-header-premium { display: block !important; }
-        .app-header-premium { display: none; } /* Solo visible en iframe mode */
-    </style>
+<body>
 
-    <div class="max-w-7xl mx-auto">
-        <!-- PLACA MAESTRA: Directorio de Clientes -->
-        <div class="master-placa bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-emerald-100 flex flex-col mb-10 animate-in fade-in duration-300">
-            
-            <!-- Cabecera Maestra Estándar -->
-            <?php render_premium_header('Clientes', 'openClientModal()'); ?>
+<div class="placa-maestra">
 
-            <!-- Contenido Principal -->
-            <div class="p-4 sm:p-8">
-                <!-- Barra de Búsqueda Premium -->
-                <div class="search-container-premium !mb-8 relative max-w-2xl mx-auto">
-                    <form method="GET" class="flex items-center">
-                        <input type="text" name="filtro" value="<?= htmlspecialchars($filtro) ?>" 
-                               class="search-input-premium w-full !py-4 !pl-12 !rounded-[2rem] shadow-sm focus:shadow-md" 
-                               placeholder="Buscar por nombre, apellido, DNI...">
-                        <span class="absolute left-4 text-xl opacity-30">🔍</span>
-                        <?php if(!empty($filtro)): ?>
-                            <a href="?" class="absolute right-4 text-gray-300 hover:text-red-500 text-2xl">&times;</a>
-                        <?php endif; ?>
-                    </form>
-                </div>
+    <!-- ── Cabecera del módulo ── -->
+    <header class="module-header pt-2 pb-1">
+        <div>
+            <h1 class="module-title">Clientes</h1>
+            <p class="text-sm" style="color: var(--color-text-light)">
+                <?= $totalClientes ?> cliente<?= $totalClientes !== 1 ? 's' : '' ?> activo<?= $totalClientes !== 1 ? 's' : '' ?>
+            </p>
+        </div>
+        <button onclick="abrirModalNuevo()" class="btn-primary" id="btn-nuevo-cliente">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+            </svg>
+            Nuevo
+        </button>
+    </header>
 
-                <!-- Listado en Subplacas (Sistema de Placas Independientes) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    <?php if (empty($clientes)): ?>
-                        <div class="col-span-full py-20 text-center bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-200">
-                            <p class="text-gray-400 italic text-lg">No se hallaron clientes.</p>
-                        </div>
-                    <?php else: ?>
-                        <?php foreach($clientes as $c): ?>
-                        <div class="subplaca-adn !mb-0 cursor-pointer" onclick="showDetails(<?= $c['IdCliente'] ?>)">
-                            <div class="subplaca-acento bg-emerald-500"></div>
-                            <div class="subplaca-cuerpo">
-                                <div class="subplaca-info">
-                                    <h3 class="font-bold text-emerald-950 text-[1.15rem] leading-tight"><?= s($c['Apellido']) ?> <?= s($c['Nombre']) ?></h3>
-                                    <p class="text-[11px] font-bold text-emerald-600 mt-0.5 tracking-wider"><?= s($c['Telefono']) ?></p>
-                                    <p class="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-tight">
-                                        <?= (int)$c['Dni'] > 0 ? 'DNI: '.s($c['Dni']) : 'SIN DNI' ?>
-                                    </p>
-                                </div>
-                                <div class="subplaca-acciones !flex-row !items-center !gap-2">
-                                     <button onclick="event.stopPropagation(); openEditClient(<?= $c['IdCliente'] ?>)" 
-                                             class="w-8 h-8 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center hover:bg-emerald-700 hover:text-white transition-all shadow-sm">
-                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                     </button>
-                                     <a href="https://wa.me/<?= preg_replace('/[^0-9]/','',$c['Telefono']) ?>" target="_blank" onclick="event.stopPropagation();" 
-                                        class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center shadow-sm hover:scale-110 active:scale-95 transition-all">
-                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.417-.003 6.557-5.338 11.892-11.893 11.892-1.997-.001-3.951-.5-5.688-1.448l-6.305 1.652zm6.599-3.835c1.52.909 3.125 1.388 4.773 1.389 5.233.002 9.491-4.258 9.493-9.492.001-2.533-.986-4.915-2.778-6.708s-4.177-2.779-6.709-2.78c-5.235 0-9.492 4.258-9.493 9.493-.001 1.761.488 3.476 1.415 4.974l-1.08 3.946 4.079-1.071zm9.178-6.035c-.255-.127-1.503-.734-1.737-.82-.233-.086-.403-.127-.573.127s-.657.82-.805.99c-.148.17-.297.191-.553.064-1.831-.916-2.825-1.526-3.951-3.456-.255-.436.255-.404.729-1.353.078-.159.039-.297-.021-.423-.06-.126-.573-1.38-.785-1.889-.208-.499-.42-.43-.573-.438-.148-.007-.318-.008-.488-.008s-.446.063-.679.297c-.234.233-.892.871-.892 2.122 0 1.25.912 2.46 1.039 2.63.127.17 1.794 2.738 4.346 3.84.607.262 1.08.419 1.448.536.611.194 1.167.166 1.607.101.491-.072 1.503-.615 1.714-1.209.211-.595.211-1.104.148-1.209-.063-.105-.233-.148-.488-.275z"/></svg>
-                                     </a>
-                                </div>
-                            </div>
-                        </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </div>
-
-            <!-- Pagination -->
-            <?php if ($total_pages > 1): ?>
-            <div class="mt-10 flex justify-center gap-2">
-                <?php for($i=1; $i<=$total_pages; $i++): ?>
-                    <a href="?page=<?= $i ?>&filtro=<?= urlencode($filtro) ?>&sort=<?= $sort_col ?>&order=<?= $sort_order ?>" 
-                       class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-2xl font-bold transition-all <?= ($i == $page) ? 'bg-emerald-700 text-white shadow-lg scale-110' : 'bg-gray-50 text-emerald-900 hover:bg-emerald-50 shadow-sm' ?>">
-                        <?= $i ?>
-                    </a>
-                <?php endfor; ?>
-            </div>
-            <?php endif; ?>
-
-            <!-- Action Buttons at the Bottom (Optional Desktop) -->
-            <div class="hidden md:flex mt-12 pt-8 border-t border-gray-100 flex-wrap justify-between items-center gap-4">
-                <div class="flex gap-4">
-                    <button type="button" onclick="exportExcel()" class="bg-green-500 text-white px-6 py-4 rounded-2xl hover:bg-green-600 transition shadow-lg flex items-center" title="Exportar a Excel">
-                        <span class="mr-2">📊</span> Exportar lista
-                    </button>
-                    <button type="button" onclick="openImportModal()" class="bg-blue-500 text-white px-6 py-4 rounded-2xl hover:bg-blue-600 transition shadow-lg flex items-center" title="Importar desde CSV">
-                        <span class="mr-2">📤</span> Importar datos
-                    </button>
-                </div>
-            </div>
+    <!-- ── Buscador AJAX ── -->
+    <div class="mb-4 relative">
+        <div class="input-search">
+            <svg class="w-5 h-5 absolute left-3" style="color: var(--color-muted)" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input type="text" id="buscador-clientes" placeholder="Buscar por nombre, apellido o teléfono..."
+                   autocomplete="off" spellcheck="false">
+            <button id="btn-limpiar-busqueda" onclick="limpiarBusqueda()"
+                    class="hidden w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center transition-colors"
+                    style="background: var(--color-primary-light); color: var(--color-primary)">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
         </div>
     </div>
 
-    <!-- Modal Detalle Cliente -->
-    <div id="modalDetalle" class="hidden fixed inset-0 z-[110] bg-emerald-950/40 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="max-w-2xl w-full card-premium overflow-hidden animate-in fade-in zoom-in duration-300">
-             <div class="bg-emerald-50 px-8 py-10 border-b border-indigo-100 text-center relative">
-                <button type="button" onclick="closeModal('modalDetalle')" class="btn-close-premium" title="Cerrar">&times;</button>
-                <div id="detInitials" class="w-20 h-20 bg-emerald-950 text-white rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-4 border-4 border-white shadow-xl"></div>
-                <h2 id="detNombre" class="brand-title text-4xl mb-2 text-emerald-950"></h2>
-                <p id="detTelefono" class="text-emerald-950/60 font-bold tracking-widest"></p>
+    <!-- ── Listado de Subplacas ── -->
+    <div id="lista-clientes" class="space-y-2">
+        <?php if (empty($clientes)): ?>
+            <div class="state-empty">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <p>No hay clientes registrados aún</p>
             </div>
-            <div class="p-8 grid grid-cols-2 gap-8 text-left">
-                <div>
-                   <label class="block text-xs font-bold text-emerald-950/40 uppercase mb-1">DNI</label>
-                   <p id="detDni" class="font-bold text-lg"></p>
-                </div>
-                <div>
-                   <label class="block text-xs font-bold text-emerald-950/40 uppercase mb-1">Cumpleaños</label>
-                   <p id="detCumple" class="font-bold text-lg"></p>
-                </div>
-                <div class="col-span-2 bg-gray-50 p-6 rounded-3xl">
-                   <h4 class="font-bold text-emerald-950 mb-4 flex items-center">🛍️ ÚLTIMAS VENTAS</h4>
-                   <div id="detHistory" class="space-y-3">
-                       <!-- AJAX generated -->
-                   </div>
+        <?php else: ?>
+            <?php foreach ($clientes as $c):
+                $iniciales = strtoupper(substr($c['Nombre'] ?? '', 0, 1) . substr($c['Apellido'] ?? '', 0, 1));
+                $gradient  = get_gradient_avatar($c['IdCliente']);
+                $telWA     = preg_replace('/\D/', '', $c['Telefono'] ?? '');
+            ?>
+            <div class="subplaca-adn group" data-id="<?= $c['IdCliente'] ?>">
+                <div class="subplaca-acento" style="background: var(--color-primary)"></div>
+                <div class="subplaca-cuerpo">
+                    <!-- Avatar + Info -->
+                    <div class="flex items-center gap-3 cursor-pointer flex-1 min-w-0"
+                         onclick="abrirFichaCliente(<?= $c['IdCliente'] ?>)">
+                        <div class="avatar bg-gradient-to-br <?= $gradient ?>">
+                            <?= $iniciales ?>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="font-semibold truncate text-sm" style="color: var(--color-text)">
+                                <?= s($c['Apellido']) ?> <?= s($c['Nombre']) ?>
+                            </h3>
+                            <p class="text-xs font-medium" style="color: var(--color-text-light)">
+                                <?= s($c['Telefono']) ?>
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Acciones rápidas -->
+                    <div class="flex items-center gap-1.5 flex-shrink-0">
+                        <button onclick="event.stopPropagation(); abrirModalEditar(<?= $c['IdCliente'] ?>)"
+                                class="btn-icon btn-icon-edit" title="Editar cliente"
+                                id="btn-edit-<?= $c['IdCliente'] ?>">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                            </svg>
+                        </button>
+                        <a href="https://wa.me/549<?= $telWA ?>" target="_blank"
+                           onclick="event.stopPropagation()"
+                           class="btn-icon btn-icon-wa" title="Enviar WhatsApp">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                                <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.555 4.113 1.528 5.84L.057 23.999l6.305-1.654A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.865 0-3.605-.507-5.102-1.388l-.366-.217-3.737.98.997-3.648-.239-.376A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+                            </svg>
+                        </a>
+                    </div>
                 </div>
             </div>
-            <div class="p-8 border-t border-gray-100 flex gap-4">
-                <button onclick="openEditFromDetail()" class="flex-1 btn-premium">EDITAR FICHA</button>
-                <a id="detWaLink" href="#" target="_blank" class="flex-1 btn-premium bg-green-500 hover:bg-green-600 flex items-center justify-center">ENVIAR WHATSAPP</a>
-            </div>
-        </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
     </div>
 
-    <!-- Inclusion Modales Reutilizables -->
-    <?php include 'partials/modal_nuevo_cliente.php'; ?>
-    <?php include 'partials/modal_editar_cliente.php'; ?>
+</div><!-- /.placa-maestra -->
 
-    <script>
-        let currentClientId = null;
+<!-- ── Modal Ficha 360° ────────────────────────────────────────────────────── -->
+<div id="modal-ficha" class="modal-overlay hidden">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h2 class="modal-title" id="ficha-nombre">Cargando...</h2>
+            <button onclick="cerrarFicha()" class="modal-close" title="Cerrar">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <!-- Avatar e info principal -->
+            <div class="flex items-center gap-4 mb-5 p-4 rounded-2xl" style="background: var(--color-primary-light)">
+                <div class="avatar avatar-lg" style="background: var(--gradient-primary)" id="ficha-avatar">--</div>
+                <div>
+                    <p class="text-sm font-medium" style="color: var(--color-text-light)">Teléfono</p>
+                    <p class="font-bold" id="ficha-telefono" style="color: var(--color-text)">—</p>
+                    <p class="text-xs mt-1" id="ficha-cumple" style="color: var(--color-text-light)"></p>
+                </div>
+            </div>
 
-        function showDetails(id) {
-            currentClientId = id;
-            const isInsideApps = window.location.pathname.includes('apps/clientes');
-            const ajaxPath = isInsideApps ? 'ajax_get_client_card.php' : 'apps/clientes/ajax_get_client_card.php';
+            <!-- Métricas -->
+            <div class="grid grid-cols-3 gap-2 mb-5">
+                <div class="text-center p-3 rounded-xl" style="background: var(--color-bg)">
+                    <p class="text-xl font-bold" style="color: var(--color-primary)" id="ficha-total-pedidos">—</p>
+                    <p class="text-xs" style="color: var(--color-muted)">Pedidos</p>
+                </div>
+                <div class="text-center p-3 rounded-xl" style="background: var(--color-bg)">
+                    <p class="text-lg font-bold" style="color: var(--color-text)" id="ficha-monto-total">—</p>
+                    <p class="text-xs" style="color: var(--color-muted)">Total</p>
+                </div>
+                <div class="text-center p-3 rounded-xl" style="background: var(--color-bg)">
+                    <p class="text-lg font-bold" style="color: var(--color-text)" id="ficha-ticket">—</p>
+                    <p class="text-xs" style="color: var(--color-muted)">Ticket prom.</p>
+                </div>
+            </div>
 
-            fetch(ajaxPath + '?id=' + id)
-            .then(r => r.json())
-            .then(data => {
-                if(data.success) {
-                    const c = data.client;
-                    document.getElementById('detNombre').innerText = c.Nombre + ' ' + c.Apellido;
-                    document.getElementById('detInitials').innerText = (c.Nombre[0] + c.Apellido[0]).toUpperCase();
-                    document.getElementById('detTelefono').innerText = c.Telefono;
-                    document.getElementById('detDni').innerText = c.Dni || 'No cargado';
-                    document.getElementById('detCumple').innerText = c.FechaNacFormat;
-                    document.getElementById('detWaLink').href = 'https://wa.me/' + c.Telefono.replace(/[^0-9]/g, '');
-                    
-                    const histDiv = document.getElementById('detHistory');
-                    histDiv.innerHTML = '';
-                    if(data.history.length > 0) {
-                        data.history.forEach(h => {
-                            histDiv.innerHTML += `
-                                <div class="flex justify-between items-center bg-white p-3 rounded-2xl shadow-sm">
-                                    <span class="font-bold">#${h.id}</span>
-                                    <span class="text-xs text-gray-400 font-bold">${h.fecha}</span>
-                                    <span class="font-black text-emerald-950">$${h.total}</span>
-                                </div>
-                            `;
-                        });
-                    } else {
-                        histDiv.innerHTML = '<p class="text-center text-gray-400 italic py-2">Sin historial de compras.</p>';
-                    }
+            <!-- Historial de pedidos -->
+            <h4 class="text-xs font-bold uppercase tracking-widest mb-3" style="color: var(--color-muted)">Últimas compras</h4>
+            <div id="ficha-historial" class="space-y-2">
+                <div class="state-loading"><div class="spinner"></div></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button onclick="abrirModalEditarDesdeDetalle()" class="btn-primary flex-1">Editar ficha</button>
+            <a id="ficha-wa-link" href="#" target="_blank" class="btn-primary flex-1"
+               style="background: #16a34a; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.555 4.113 1.528 5.84L.057 23.999l6.305-1.654A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.865 0-3.605-.507-5.102-1.388l-.366-.217-3.737.98.997-3.648-.239-.376A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+                </svg>
+                WhatsApp
+            </a>
+        </div>
+    </div>
+</div>
 
-                    document.getElementById('modalDetalle').classList.remove('hidden');
-                }
-            });
+<!-- ── Modales Nuevo / Editar ──────────────────────────────────────────────── -->
+<?php include 'partials/modal_nuevo_cliente.php'; ?>
+<?php include 'partials/modal_editar_cliente.php'; ?>
+
+<!-- ── JavaScript ─────────────────────────────────────────────────────────── -->
+<script>
+// ── Estado global ─────────────────────────────────────────────────────────────
+let fichaClienteActual = null;
+let debounceTimer      = null;
+
+// ── Buscador AJAX con debounce ────────────────────────────────────────────────
+document.getElementById('buscador-clientes').addEventListener('input', function() {
+    clearTimeout(debounceTimer);
+    const q = this.value.trim();
+    document.getElementById('btn-limpiar-busqueda').classList.toggle('hidden', q.length === 0);
+
+    debounceTimer = setTimeout(() => buscarClientes(q), 320);
+});
+
+async function buscarClientes(q) {
+    const lista = document.getElementById('lista-clientes');
+
+    if (q.length === 0) {
+        location.reload(); // Volver al listado inicial del servidor
+        return;
+    }
+    if (q.length < 2) return;
+
+    lista.innerHTML = '<div class="state-loading"><div class="spinner"></div></div>';
+
+    try {
+        const res  = await fetch(`ajax_buscar_clientes.php?q=${encodeURIComponent(q)}`);
+        const json = await res.json();
+
+        if (json.status !== 'ok') throw new Error(json.message);
+        renderListaClientes(json.data);
+
+    } catch (err) {
+        lista.innerHTML = `<div class="state-empty"><p>Error al buscar: ${err.message}</p></div>`;
+    }
+}
+
+function limpiarBusqueda() {
+    document.getElementById('buscador-clientes').value = '';
+    document.getElementById('btn-limpiar-busqueda').classList.add('hidden');
+    location.reload();
+}
+
+function renderListaClientes(clientes) {
+    const lista = document.getElementById('lista-clientes');
+
+    if (!clientes || clientes.length === 0) {
+        lista.innerHTML = `
+          <div class="state-empty">
+            <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <p>Sin resultados para esa búsqueda</p>
+          </div>`;
+        return;
+    }
+
+    lista.innerHTML = clientes.map(c => {
+        const iniciales = c.label.split(' ').map(p => p[0]).slice(0, 2).join('');
+        return `
+          <div class="subplaca-adn group">
+            <div class="subplaca-acento" style="background: var(--color-primary)"></div>
+            <div class="subplaca-cuerpo">
+              <div class="flex items-center gap-3 cursor-pointer flex-1 min-w-0"
+                   onclick="abrirFichaCliente(${c.id})">
+                <div class="avatar" style="background: var(--gradient-primary)">${iniciales.toUpperCase()}</div>
+                <div class="min-w-0">
+                  <h3 class="font-semibold truncate text-sm" style="color: var(--color-text)">${c.label}</h3>
+                  <p class="text-xs" style="color: var(--color-text-light)">${c.telefono}</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-1.5 flex-shrink-0">
+                <button onclick="event.stopPropagation(); abrirModalEditar(${c.id})"
+                        class="btn-icon btn-icon-edit" title="Editar">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                  </svg>
+                </button>
+                <a href="https://wa.me/549${c.telefono.replace(/\D/g,'')}" target="_blank"
+                   onclick="event.stopPropagation()" class="btn-icon btn-icon-wa" title="WhatsApp">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.555 4.113 1.528 5.84L.057 23.999l6.305-1.654A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.865 0-3.605-.507-5.102-1.388l-.366-.217-3.737.98.997-3.648-.239-.376A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>`;
+    }).join('');
+}
+
+// ── Ficha 360° ────────────────────────────────────────────────────────────────
+async function abrirFichaCliente(id) {
+    fichaClienteActual = id;
+    document.getElementById('modal-ficha').classList.remove('hidden');
+    document.getElementById('ficha-historial').innerHTML =
+        '<div class="state-loading"><div class="spinner"></div></div>';
+
+    try {
+        const res  = await fetch(`ajax_get_client_card.php?id=${id}`);
+        const json = await res.json();
+        if (json.status !== 'ok') throw new Error(json.message);
+
+        const { client, history, metricas } = json.data;
+
+        document.getElementById('ficha-nombre').textContent  = client.NombreCompleto;
+        document.getElementById('ficha-avatar').textContent  = client.Iniciales;
+        document.getElementById('ficha-telefono').textContent = client.Telefono || '—';
+        document.getElementById('ficha-cumple').textContent  = client.FechaNacFormat
+            ? `🎂 ${client.FechaNacFormat}` : '';
+        document.getElementById('ficha-wa-link').href =
+            `https://wa.me/549${client.TelefonoWA}`;
+
+        // Métricas
+        document.getElementById('ficha-total-pedidos').textContent = metricas.total_pedidos ?? '—';
+        document.getElementById('ficha-monto-total').textContent   = metricas.monto_total ?? '—';
+        document.getElementById('ficha-ticket').textContent        = metricas.ticket_promedio ?? '—';
+
+        // Historial
+        const histDiv = document.getElementById('ficha-historial');
+        if (history.length === 0) {
+            histDiv.innerHTML = '<p class="text-center text-sm py-4" style="color: var(--color-muted)">Sin historial de compras</p>';
+        } else {
+            const estadosLabel = ['', 'Pendiente', 'Pagado', 'Entregado'];
+            const estadosBadge = ['', 'badge-pendiente', 'badge-pagado', 'badge-entregado'];
+            histDiv.innerHTML = history.map(h => `
+              <div class="subplaca flex items-center justify-between !py-2">
+                <span class="font-bold text-sm" style="color: var(--color-text)">#${h.id}</span>
+                <span class="text-xs" style="color: var(--color-muted)">${h.fecha}</span>
+                <span class="badge ${estadosBadge[h.estado] || 'badge-inactivo'}">${estadosLabel[h.estado] || '—'}</span>
+                <span class="font-bold text-sm" style="color: var(--color-primary)">${h.total}</span>
+              </div>`).join('');
         }
 
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
-        }
+    } catch (err) {
+        document.getElementById('ficha-historial').innerHTML =
+            `<p class="text-center py-4 text-sm" style="color: var(--color-error)">Error: ${err.message}</p>`;
+    }
+}
 
-        function openEditFromDetail() {
-            closeModal('modalDetalle');
-            openEditClient(currentClientId);
-        }
+function cerrarFicha() {
+    document.getElementById('modal-ficha').classList.add('hidden');
+}
 
+function abrirModalEditarDesdeDetalle() {
+    cerrarFicha();
+    if (fichaClienteActual) abrirModalEditar(fichaClienteActual);
+}
 
-        function exportExcel() {
-             Swal.fire('Exportación', 'Generando reporte Excel...', 'success');
-        }
+// ── Cerrar modal con Escape ────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+        cerrarFicha();
+        cerrarModalNuevo?.();
+        cerrarModalEditar?.();
+    }
+});
 
-        function openImportModal() {
-             Swal.fire('Importación', 'Prepara tu archivo CSV con: Nombre, Apellido, Telefono, DNI, FechaNac', 'info');
-        }
-    </script>
+// ── Cerrar modal al click en el overlay ───────────────────────────────────────
+document.getElementById('modal-ficha').addEventListener('click', function(e) {
+    if (e.target === this) cerrarFicha();
+});
+</script>
+
 </body>
 </html>

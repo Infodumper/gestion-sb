@@ -3,7 +3,7 @@ session_start();
 require_once '../includes/db.php';
 require_once '../includes/security.php';
 
-log_event($pdo, 'LOGOUT', 'Usuario cerró sesión');
+log_event('LOGOUT', 'Usuario cerró sesión', __FILE__);
 
 session_unset();
 session_destroy();

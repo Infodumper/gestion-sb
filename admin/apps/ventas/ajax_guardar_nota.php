@@ -59,7 +59,7 @@ try {
     $pdo->prepare("UPDATE pedidos SET Total = ? WHERE IdPedido = ?")->execute([$total_general, $id_pedido]);
 
     // 3. Log de auditoría
-    log_event($pdo, 'PEDIDO_CREADO', "Pedido #$id_pedido para Cliente ID: $id_cliente. Total: $total_general");
+    log_event('PEDIDO_CREADO', "Pedido #$id_pedido para Cliente ID: $id_cliente. Total: $total_general", __FILE__);
 
     $pdo->commit();
 

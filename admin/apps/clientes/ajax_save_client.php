@@ -1,107 +1,105 @@
 <?php
-header('Content-Type: application/json');
+/**
+ * Endpoint: Guardar / Actualizar Cliente
+ * Contrato: POST JSON → { status: 'ok|error', data?: {...}, message: string }
+ */
 
-session_start();
-if (!isset($_SESSION['userid'])) {
-    echo json_encode(['success' => false, 'message' => 'Sesión expirada.']);
-    exit;
+require_once '../../../includes/security.php';
+require_once '../../../includes/db.php';
+header('Content-Type: application/json; charset=utf-8');
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    json_response('error', null, 'Método no permitido', 405);
 }
 
-require_once '../../../includes/db.php';
-require_once '../../../includes/security.php';
+// ── Leer payload (soporta tanto form-data como JSON body) ──────────────────────
+$contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+if (str_contains($contentType, 'application/json')) {
+    $input = json_decode(file_get_contents('php://input'), true) ?? [];
+} else {
+    $input = $_POST;
+}
+
+$idCliente = intval($input['id_cliente'] ?? $input['id'] ?? 0);
+$nombre    = ucwords(strtolower(trim($input['nombre'] ?? '')));
+$apellido  = ucwords(strtolower(trim($input['apellido'] ?? '')));
+$dni       = preg_replace('/[\s\-\.]/', '', trim($input['dni'] ?? ''));
+$telefono  = preg_replace('/\D/', '', trim($input['telefono'] ?? ''));
+$dia       = $input['dia_nac'] ?? '';
+$mes       = $input['mes_nac'] ?? '';
+$promo     = isset($input['Promociones']) ? 1 : 0;
+$estado    = isset($input['estado']) ? intval($input['estado']) : 1;
+
+// ── Validaciones básicas ───────────────────────────────────────────────────────
+if (empty($nombre)) {
+    json_response('error', null, 'El nombre es obligatorio');
+}
+
+if (!empty($telefono) && strlen($telefono) < 7) {
+    json_response('error', null, 'El teléfono debe tener al menos 7 dígitos');
+}
+
+// Normalizar DNI y teléfono a NULL si vacíos
+$dniVal  = empty($dni)      ? null : $dni;
+$telVal  = empty($telefono) ? null : $telefono;
+
+// Construir FechaNac
+$fechaNac = null;
+if ($dia && $mes && checkdate((int)$mes, (int)$dia, 2000)) {
+    $fechaNac = sprintf('2000-%02d-%02d', (int)$mes, (int)$dia);
+}
+
+$nombreCompleto = trim("$nombre $apellido");
 
 try {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        throw new Exception('Método no válido.');
-    }
-
-    $id_cliente = isset($_POST['id_cliente']) ? intval($_POST['id_cliente']) : 0;
-    $nombre   = trim($_POST['nombre'] ?? '');
-    $apellido = trim($_POST['apellido'] ?? '');
-    $dni      = trim($_POST['dni'] ?? '');
-    $telefono = trim($_POST['telefono'] ?? '');
-    $dia      = $_POST['dia_nac'] ?? '';
-    $mes      = $_POST['mes_nac'] ?? '';
-    $promo    = isset($_POST['Promociones']) ? 1 : 0;
-    $estado   = isset($_POST['estado']) ? intval($_POST['estado']) : 1;
-
-    if (empty($nombre)) {
-        $nombre = 'Desconocido';
-    }
-    if (empty($apellido)) {
-        $apellido = '';
-    }
-    // Sanitizar teléfono si no está vacío
-    $tel_val = NULL;
-    if (!empty($telefono)) {
-        $tel_val = preg_replace('/[^0-9]/', '', $telefono);
-    }
-
-    $fechaNac = NULL;
-    if ($dia && $mes) {
-        if (checkdate((int)$mes, (int)$dia, 2000)) {
-            $fechaNac = sprintf('2000-%02d-%02d', $mes, $dia);
+    // ── Verificar duplicado de teléfono ────────────────────────────────────────
+    if ($telVal) {
+        $chkTel = $pdo->prepare(
+            "SELECT IdCliente FROM clientes WHERE Telefono = ? AND IdCliente != ? LIMIT 1"
+        );
+        $chkTel->execute([$telVal, $idCliente]);
+        if ($chkTel->fetch()) {
+            json_response('error', null, 'Ese número de teléfono ya está registrado en otro cliente');
         }
     }
 
-    // Manejar DNI como NULL si está vacío para evitar conflictos de Unique
-    $dni_val = empty($dni) ? NULL : $dni;
-
-    if ($id_cliente > 0) {
-        // --- UPDATE ---
-        // Verificar Teléfono duplicado SOLO si se ingresó uno
-        if ($tel_val) {
-            $stmtChk = $pdo->prepare("SELECT IdCliente FROM clientes WHERE Telefono = ? AND IdCliente != ? LIMIT 1");
-            $stmtChk->execute([$tel_val, $id_cliente]);
-            if ($stmtChk->fetch()) {
-                throw new Exception("El número de teléfono ya está registrado en otro cliente.");
-            }
+    // ── Verificar duplicado de DNI ─────────────────────────────────────────────
+    if ($dniVal) {
+        $chkDni = $pdo->prepare(
+            "SELECT IdCliente FROM clientes WHERE Dni = ? AND IdCliente != ? LIMIT 1"
+        );
+        $chkDni->execute([$dniVal, $idCliente]);
+        if ($chkDni->fetch()) {
+            json_response('error', null, 'Ese DNI ya está registrado en otro cliente');
         }
+    }
 
-        // Verificar DNI duplicado SOLO si se ingresó uno
-        if ($dni_val) {
-            $stmtChk = $pdo->prepare("SELECT IdCliente FROM clientes WHERE Dni = ? AND IdCliente != ? LIMIT 1");
-            $stmtChk->execute([$dni_val, $id_cliente]);
-            if ($stmtChk->fetch()) {
-                throw new Exception("El DNI ya está registrado en otro cliente.");
-            }
-        }
+    if ($idCliente > 0) {
+        // ── UPDATE ─────────────────────────────────────────────────────────────
+        $stmt = $pdo->prepare("
+            UPDATE clientes
+            SET Nombre = ?, Apellido = ?, Dni = ?, Telefono = ?, FechaNac = ?, Promociones = ?, Estado = ?
+            WHERE IdCliente = ?
+        ");
+        $stmt->execute([$nombre, $apellido, $dniVal, $telVal, $fechaNac, $promo, $estado, $idCliente]);
 
-        $sql = "UPDATE clientes SET Nombre=?, Apellido=?, Dni=?, Telefono=?, FechaNac=?, Promociones=?, Estado=? WHERE IdCliente=?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$nombre, $apellido, $dni_val, $tel_val, $fechaNac, $promo, $estado, $id_cliente]);
-        
-        log_event($pdo, 'CLIENTE_ACTUALIZADO', "ID: $id_cliente - $nombre $apellido");
-        echo json_encode(['success' => true, 'message' => 'Cliente actualizado correctamente.']);
+        log_event('UPDATE', "Cliente ID=$idCliente ($nombreCompleto) actualizado", __FILE__);
+        json_response('ok', ['id' => $idCliente], 'Cliente actualizado correctamente');
+
     } else {
-        // --- INSERT ---
-        // Verificar Teléfono duplicado SOLO si se ingresó uno
-        if ($tel_val) {
-            $stmtChk = $pdo->prepare("SELECT IdCliente FROM clientes WHERE Telefono = ? LIMIT 1");
-            $stmtChk->execute([$tel_val]);
-            if ($stmtChk->fetch()) {
-                throw new Exception("El número de teléfono ya está registrado.");
-            }
-        }
-
-        // Verificar DNI duplicado SOLO si se ingresó uno
-        if ($dni_val) {
-            $stmtChk = $pdo->prepare("SELECT IdCliente FROM clientes WHERE Dni = ? LIMIT 1");
-            $stmtChk->execute([$dni_val]);
-            if ($stmtChk->fetch()) {
-                throw new Exception("El DNI ya está registrado.");
-            }
-        }
-
-        $sql = "INSERT INTO clientes (Nombre, Apellido, Dni, Telefono, FechaNac, Promociones, Estado) VALUES (?, ?, ?, ?, ?, ?, 1)";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$nombre, $apellido, $dni_val, $tel_val, $fechaNac, $promo]);
-
+        // ── INSERT ─────────────────────────────────────────────────────────────
+        $stmt = $pdo->prepare("
+            INSERT INTO clientes (Nombre, Apellido, Dni, Telefono, FechaNac, Promociones, Estado)
+            VALUES (?, ?, ?, ?, ?, ?, 1)
+        ");
+        $stmt->execute([$nombre, $apellido, $dniVal, $telVal, $fechaNac, $promo]);
         $newId = $pdo->lastInsertId();
-        log_event($pdo, 'CLIENTE_CREADO', "ID: $newId - $nombre $apellido");
-        echo json_encode(['success' => true, 'message' => 'Cliente guardado correctamente.']);
+
+        log_event('INSERT', "Nuevo cliente ID=$newId ($nombreCompleto) creado por uid=" . $_SESSION['userid'], __FILE__);
+        json_response('ok', ['id' => $newId], 'Cliente registrado correctamente');
     }
 
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    log_event('ERROR', $e->getMessage(), __FILE__);
+    json_response('error', null, 'Error interno del servidor', 500);
 }

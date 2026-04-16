@@ -1,5 +1,5 @@
-# Directiva: Gestión de Pedidos y Transacciones
-> **Skills Asociados:** `sales_manager`, `catalog_manager`, `billing_helper`
+## Directiva: Gestión de Pedidos y Transacciones
+> **Skills Asociados:** [[Skills/sales_manager/SKILL|sales_manager]], [[Skills/catalog_manager/SKILL|catalog_manager]], [[Skills/billing_helper/SKILL|billing_helper]]
 
 
 ## Capa 1: Directiva (Objetivo)

@@ -19,3 +19,7 @@ instalar.php
 instalar.php.locked
 instalar.php*
 *.locked
+
+# Bóvedas de Obsidian (Documentación Local)
+obsidian_gestion/
+obsidian_gestion-sb/

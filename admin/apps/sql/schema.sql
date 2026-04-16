@@ -1,6 +1,6 @@
 -- Database Creation
-CREATE DATABASE IF NOT EXISTS consultora_belleza;
-USE consultora_belleza;
+CREATE DATABASE IF NOT EXISTS gestion_sb;
+USE gestion_sb;
 
 -- 1. Table: DbLogin
 CREATE TABLE IF NOT EXISTS DbLogin (

@@ -59,14 +59,39 @@ if (!function_exists('render_premium_header')) {
     function render_premium_header($title, $btn_new_onclick = null) {
         $btn_html = '';
         if ($btn_new_onclick) {
-            $btn_html = '<button onclick="'.htmlspecialchars($btn_new_onclick).'" class="btn-header-nuevo"><span class="text-xs mr-1">➕</span> NUEVO</button>';
+            $btn_html = '
+            <button onclick="'.htmlspecialchars($btn_new_onclick).'" class="btn-header-nuevo flex items-center gap-2 group">
+                <svg class="w-4 h-4 transition-transform group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                <span>NUEVO</span>
+            </button>';
         }
         echo '
         <div class="modal-header-premium mb-6">
             <h1 class="modal-title-premium">'.htmlspecialchars($title).'</h1>
             '.$btn_html.'
-            <button type="button" onclick="window.parent.closeAppModal()" class="btn-close-premium" title="Cerrar">&times;</button>
+            <button type="button" onclick="window.parent.closeAppModal()" class="btn-close-premium group" title="Cerrar">
+                <svg class="w-6 h-6 transition-transform group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
         </div>';
+    }
+}
+
+if (!function_exists('get_gradient_avatar')) {
+    /**
+     * Devuelve una clase de gradiente CSS basada en una cadena (ej. nombre) para consistencia.
+     */
+    function get_gradient_avatar($str) {
+        $gradients = [
+            'from-emerald-500 to-teal-700',
+            'from-blue-500 to-indigo-700',
+            'from-purple-500 to-fuchsia-700',
+            'from-rose-500 to-pink-700',
+            'from-amber-500 to-orange-700',
+            'from-cyan-500 to-blue-600',
+            'from-lime-500 to-emerald-600'
+        ];
+        $index = abs(crc32((string)$str)) % count($gradients);
+        return $gradients[$index];
     }
 }
 ?>

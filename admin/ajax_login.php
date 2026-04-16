@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once '../includes/db.php';
-require_once '../includes/security.php';
+require_once '../utils/logger.php';
 
 header('Content-Type: application/json');
 
@@ -19,7 +19,7 @@ if (!$email || !$password) {
 }
 
 try {
-    $stmt = $pdo->prepare("SELECT * FROM dblogin WHERE Usuario = ? AND Estado = 1 LIMIT 1");
+    $stmt = $pdo->prepare("SELECT * FROM DbLogin WHERE Usuario = ? AND Estado = 1 LIMIT 1");
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
@@ -31,16 +31,19 @@ try {
         $_SESSION['email'] = $user['Usuario'];
         $_SESSION['fullname'] = $user['Nombre'];
         $_SESSION['role'] = $user['Rol'];
+        $_SESSION['login_at'] = time(); // Requerido por includes/security.php
 
-        log_event($pdo, 'LOGIN_EXITOSO', 'Usuario access: ' . $email);
+        log_event('AUTH_OK', 'Usuario access: ' . $email, __FILE__);
         echo json_encode(['success' => true]);
     } else {
         // Mitigation for Brute Force (Simple delay)
         usleep(500000); // 0.5 seconds
-        log_event($pdo, 'LOGIN_FALLIDO', 'Intento fallido: ' . $email);
+        log_event('AUTH_FAIL', 'Intento fallido: ' . $email, __FILE__);
         echo json_encode(['success' => false, 'message' => 'Usuario o contraseña incorrectos']);
     }
-} catch (PDOException $e) {
-    echo json_encode(['success' => false, 'message' => 'Error en el servidor']);
+} catch (Throwable $e) {
+    error_log("[GestionSB][CRITICAL] Error en login: " . $e->getMessage());
+    echo json_encode(['success' => false, 'message' => 'Error en el servidor: ' . $e->getMessage()]);
 }
 ?>
+

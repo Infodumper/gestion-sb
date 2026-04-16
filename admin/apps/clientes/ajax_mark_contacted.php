@@ -1,54 +1,65 @@
 <?php
-header('Content-Type: application/json');
-session_start();
-if (!isset($_SESSION['userid'])) {
-    echo json_encode(['success' => false, 'message' => 'Sesión expirada']);
-    exit;
+/**
+ * Endpoint: Registrar Contacto WhatsApp (toggle)
+ * Contrato: POST JSON → { status: 'ok|error', data?: {marked: bool}, message: string }
+ */
+
+require_once '../../../includes/security.php';
+require_once '../../../includes/db.php';
+header('Content-Type: application/json; charset=utf-8');
+
+// Aceptar tanto JSON body como form-data (retrocompatible)
+$contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+if (str_contains($contentType, 'application/json')) {
+    $input = json_decode(file_get_contents('php://input'), true) ?? [];
+} else {
+    $input = $_POST;
 }
 
-require_once '../../../includes/db.php';
-require_once '../../../includes/security.php';
+$idCliente = intval($input['id_cliente'] ?? $input['id'] ?? 0);
+$tipo      = trim($input['tipo'] ?? '');
 
-$idCliente = isset($_POST['id']) ? intval($_POST['id']) : 0;
-$tipo = isset($_POST['tipo']) ? $_POST['tipo'] : '';
-
-if ($idCliente <= 0 || empty($tipo)) {
-    echo json_encode(['success' => false, 'message' => 'Datos inválidos']);
-    exit;
+$tiposValidos = ['cumple', 'habitual', 'mensual'];
+if ($idCliente <= 0 || !in_array($tipo, $tiposValidos)) {
+    json_response('error', null, 'Parámetros inválidos. Tipo debe ser: ' . implode(', ', $tiposValidos));
 }
 
 try {
-    // 1. Determinar intervalo de validez para el toggle
-    // Cumple: Solo HOY
-    // Habitual: Este MES
+    // ── Determinar lógica de período según tipo ────────────────────────────────
     if ($tipo === 'cumple') {
-        $checkSql = "SELECT IdContacto FROM contactoswhatsapp WHERE IdCliente = ? AND Tipo = ? AND DATE(FechaContacto) = CURDATE()";
+        // Solo una vez por día (el día exacto del cumpleaños)
+        $checkSql = "SELECT IdContacto FROM contactoswhatsapp
+                     WHERE IdCliente = ? AND Tipo = ? AND DATE(FechaContacto) = CURDATE()";
     } else {
-        $checkSql = "SELECT IdContacto FROM contactoswhatsapp WHERE IdCliente = ? AND Tipo = ? AND MONTH(FechaContacto) = MONTH(CURDATE()) AND YEAR(FechaContacto) = YEAR(CURDATE())";
+        // Solo una vez por mes (habitual, mensual)
+        $checkSql = "SELECT IdContacto FROM contactoswhatsapp
+                     WHERE IdCliente = ? AND Tipo = ?
+                       AND MONTH(FechaContacto) = MONTH(CURDATE())
+                       AND YEAR(FechaContacto)  = YEAR(CURDATE())";
     }
 
-    $stmt = $pdo->prepare($checkSql);
-    $stmt->execute([$idCliente, $tipo]);
-    $existing = $stmt->fetch(PDO::FETCH_ASSOC);
+    $checkStmt = $pdo->prepare($checkSql);
+    $checkStmt->execute([$idCliente, $tipo]);
+    $existing = $checkStmt->fetch(PDO::FETCH_ASSOC);
 
     if ($existing) {
-        // Ya existe -> Eliminar (Toggle OFF)
-        $del = $pdo->prepare("DELETE FROM contactoswhatsapp WHERE IdContacto = ?");
-        $del->execute([$existing['IdContacto']]);
-        $marked = false;
-        $label = "ELIMINADO";
+        // Toggle OFF → eliminar el registro
+        $pdo->prepare("DELETE FROM contactoswhatsapp WHERE IdContacto = ?")
+            ->execute([$existing['IdContacto']]);
+
+        log_event('DELETE', "Contacto WA tipo=$tipo desmarcado para IdCliente=$idCliente", __FILE__);
+        json_response('ok', ['marked' => false], 'Contacto desmarcado');
+
     } else {
-        // No existe -> Isertar (Toggle ON)
-        $ins = $pdo->prepare("INSERT INTO contactoswhatsapp (IdCliente, Tipo) VALUES (?, ?)");
-        $ins->execute([$idCliente, $tipo]);
-        $marked = true;
-        $label = "CREADO";
+        // Toggle ON → insertar nuevo registro
+        $pdo->prepare("INSERT INTO contactoswhatsapp (IdCliente, Tipo) VALUES (?, ?)")
+            ->execute([$idCliente, $tipo]);
+
+        log_event('INSERT', "Contacto WA tipo=$tipo registrado para IdCliente=$idCliente", __FILE__);
+        json_response('ok', ['marked' => true], 'Contacto registrado');
     }
-    
-    log_event($pdo, 'WA_CONTACTO', "ID Cliente: $idCliente - Tipo: $tipo - Acción: $label");
-    
-    echo json_encode(['success' => true, 'marked' => $marked]);
-} catch (PDOException $e) {
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+
+} catch (Exception $e) {
+    log_event('ERROR', $e->getMessage(), __FILE__);
+    json_response('error', null, 'Error interno del servidor', 500);
 }
-?>

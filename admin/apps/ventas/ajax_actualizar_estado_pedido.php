@@ -68,7 +68,7 @@ try {
         $log_msg = "Pedido #$id_pedido RE-ACTIVADO (Stock descontado).";
     }
 
-    log_event($pdo, 'PEDIDO_ESTADO_CAMBIADO', $log_msg);
+    log_event('PEDIDO_ESTADO_CAMBIADO', $log_msg, __FILE__);
     $pdo->commit();
 
     echo json_encode(['success' => true, 'message' => 'Estado actualizado correctamente.']);

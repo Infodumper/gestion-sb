@@ -1,5 +1,5 @@
-# Directiva: Sistema de Autenticación y Acceso
-> **Skills Asociados:** `login_manager`, `auth_authenticator`, `session_guard`
+## Directiva: Sistema de Autenticación y Acceso
+> **Skills Asociados:** [[Skills/login_manager/SKILL|login_manager]], [[Skills/auth_authenticator/SKILL|auth_authenticator]], [[Skills/session_guard/SKILL|session_guard]]
 
 ## Capa 1: Directiva (Objetivo y Alcance)
 

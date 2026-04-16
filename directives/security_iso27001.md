@@ -1,6 +1,8 @@
-# Directiva: Estándares de Seguridad (ISO 27001)
+## Directiva: Estándares de Seguridad (ISO 27001)
 
-Este documento define las políticas de seguridad de la información para el proyecto Consultora, alineadas con los controles de la norma ISO 27001.
+> **Skills Asociados:** [[Skills/session_guard/SKILL|session_guard]], [[Skills/auth_authenticator/SKILL|auth_authenticator]], [[Skills/login_manager/SKILL|login_manager]]
+
+Este documento define las políticas de seguridad de la información para el proyecto Gestión SB, alineadas con los controles de la norma ISO 27001.
 
 ## 1. Control de Acceso (A.9)
 

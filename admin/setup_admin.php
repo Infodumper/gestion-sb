@@ -2,7 +2,7 @@
 /**
  * Setup Admin User
  * Run this ONCE in your browser to create the first admin.
- * URL: http://localhost/consultora/admin/setup_admin.php
+ * URL: http://localhost/gestion-sb/admin/setup_admin.php
  */
 
 require_once '../includes/db.php';

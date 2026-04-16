@@ -1,44 +1,146 @@
-# Directiva: Arquitectura del Sistema (Gestion SB)
-> **Skills Asociados:** `menu_navigator`, `app_orchestrator`, `dashboard_layout`
+## Directiva: Arquitectura del Sistema (Gestion SB)
+> **Skills Asociados:** `menu_navigator` · `app_orchestrator` · `dashboard_layout`
+> **Versión:** 2.0 · **Estado:** Producción
 
-## Capa 1: Directiva (Objetivo y Alcance)
+---
 
-**Objetivo:**
+## Capa 1: Objetivo y Alcance
 
-Establecer los estándares de arquitectura, diseño y navegación para el sistema de gestión de Stefy Barroso. El sistema debe ser altamente eficiente para uso móvil y con una estética premium coherente.
+**Misión:**
+Establecer los estándares de arquitectura de información, navegación, design system y convenciones técnicas que unifican la experiencia visual y de desarrollo de todo el sistema.
+
+Esta directiva es la **raíz** del árbol de directivas. Todos los demás módulos la heredan.
+
+---
 
 ## Capa 2: Orquestación (Patrones de Diseño)
 
-### 1. Navegación "App-Like" (NORMA OBLIGATORIA ESTRUCTURA)
+### 1. Arquitectura SPA Mobile-First (OBLIGATORIO)
 
-* **SPA y Mobile-First**: Mantener una estructura SPA simple, sin frameworks pesados, priorizando el uso y visualización desde celulares.
-* **Arquitectura de Placas Independientes de Información**: Contenedores de tipo "Placa Maestra" y "Subplacas" apiladas. Todo el CSS debe estar globalizado; nada de estilos flotantes.
-* **Menú y Navigations**: Bottom nav bars o menú principal táctil, controlando vistas desde JS sin refrescar si no es necesario.
-* **Pop-ups / Iframes / Vistas Dinámicas**: Mantener el contexto persistente cargando la info en el Dashboard central.
-* **Regla de la "X" (Cierre)**: Únicamente un botón de cierre. En vistas principales se ubica en la parte inferior. Solo pop-ups/modales llevan el botón en el encabezado superior derecho.
-* **Regla de las Subplacas**: Todo listado de entidades (personas, productos, registros) debe implementarse mediante tarjetas individuales blancas (`bg-white`), con bordes redondeados (`rounded-[1.5rem]`), sombra suave (`shadow-sm`) y separadas entre sí. Prohibido mostrar datos sueltos o texto flotante en listados.
-### 2. Estrechamiento de Diseño (Design System)
+| Principio | Implementación |
+|---|---|
+| **Sin recargas de página** | La navegación entre módulos usa `fetch()` hacia rutas PHP. Resultado inyectado en `<main id="contenedor-principal">` |
+| **Mobile-First** | Diseño para viewport 390px. Escalar hacia arriba para tablet/desktop |
+| **Bottom Navbar** | Menú fijo inferior (`position: fixed; bottom: 0`) con íconos SVG. Mín. 4 ítems |
+| **Módulos como iframes/partials** | Cada módulo es un archivo PHP que puede cargarse standalone o inyectado como partial |
 
-* **Centralización**: Todo el estilo visual vive en `/styles/main.css`.
-* **Variables CSS**: Uso obligatorio de `:root` para colores de marca (Púrpura Noa Mora, Naranja Stefy).
-* **Tipografía**:
-* `Libre Baskerville`: Títulos de marca y énfasis.
-* `Poppins`: Cuerpo de texto, formularios y datos.
-## Capa 3: Ejecución (Estándares Técnicos)
+### 2. Sistema de Placas
+
+| Componente | Clases / Variables | Uso |
+|---|---|---|
+| `Placa Maestra` | `.placa-maestra` | Contenedor de toda la vista |
+| `Subplaca` | `.subplaca` + `rounded-[1.5rem]` | Cada entidad en un listado |
+| `Subplaca ADN` | `.subplaca-adn` + `rounded-[1.8rem]` | Variante con más énfasis visual |
+| `Modal Overlay` | `fixed inset-0 bg-black/40` | Ventanas flotantes secundarias |
+
+### 3. Regla de la "X" (Cierre)
+
+```
+Vista principal (módulo inyectado)  →  Sin X visible. El Back va en el Bottom Navbar
+Modal / Pop-up secondary            →  X en esquina superior derecha del contenedor del modal
+Drawer / Bottom-sheet               →  Swipe abajo o botón en el header del drawer
+```
+
+---
+
+## Capa 3: Estándares Técnicos
+
+### Stack Tecnológico
+
+| Tecnología | Uso |
+|---|---|
+| PHP 8.1+ | Backend, renderizado de HTML inicial |
+| PDO | Única forma de interactuar con la BD |
+| MySQL/MariaDB | Base de datos relacional |
+| Tailwind CSS (CDN) | Clases utilitarias de UI |
+| `styles/colores.css` | Design System global (colores, tipografías, radios, sombras) |
+| Vanilla JS | Lógica de UI, fetch, DOM |
+| SweetAlert2 | Sistema único de diálogos y toasts |
+| Libre Baskerville | Tipografía de marca y títulos |
+| Poppins | Tipografía de cuerpo |
 
 ### Estructura de Carpetas
 
-* `admin/`: Panel de gestión.
-* `admin/apps/`: Módulos de negocio (clientes, ventas, stock).
-* `admin/apps/[modulo]/partials/`: Fragmentos de código (modales, tablas) reutilizables.
-* `includes/`: Lógica compartida (conexión DB, carga de .env).
-* `styles/`: Archivos CSS globales.
-### Tecnologías Obligatorias
+```
+admin/
+├── login.php                   # Punto de entrada
+├── index.php                   # Shell SPA central
+└── apps/
+    ├── clientes/
+    │   ├── ver_clientes.php
+    │   ├── atencion_cliente.php
+    │   ├── partials/            # Modales, fragmentos reutilizables
+    │   └── ajax_*.php           # Endpoints AJAX
+    ├── ventas/
+    │   └── ...
+    └── pedidos/
+        └── ...
+includes/
+├── db.php                      # Conexión PDO (lee .env)
+└── security.php                # Middleware de sesión
+styles/
+└── colores.css                 # Design System global
+utils/
+└── logger.php                  # Función log_event()
+```
 
-* **Backend**: PHP 8+ (PDO para base de datos).
-* **Frontend**: Tailwind CSS (via CDN para prototipado rápido) + Vanilla JS.
-* **Interacción**: SweetAlert2 para todos los diálogos de confirmación y error.
+### Contratos de Interfaz AJAX
+
+Todo endpoint AJAX retorna:
+```json
+{
+  "status":  "ok | error",
+  "data":    { ... },
+  "message": "Texto legible en español"
+}
+```
+
+Código HTTP: `200` para OK, `400` para validación, `401` para no autenticado, `500` para error interno.
+
+---
+
 ## Capa 4: Observabilidad
 
-* **Logging**: Integrado en cada acción de cambio (INSERT/UPDATE/DELETE).
-* **Feedback**: El usuario siempre debe recibir una confirmación visual clara tras cualquier operación.
+### Logging
+
+```php
+// utils/logger.php — función estandarizada
+function log_event(string $nivel, string $mensaje, string $origen = ''): void {
+    // Persiste en logs/gestion_sb.db (SQLite)
+    // Niveles: INFO, UPDATE, INSERT, DELETE, AUTH_OK, AUTH_FAIL, ERROR
+}
+```
+
+**Obligatorio llamar a `log_event()` en:**
+- Todo INSERT/UPDATE/DELETE en BD
+- Login exitoso (`AUTH_OK`) y fallido (`AUTH_FAIL`)
+- Errores de excepción (`ERROR`)
+
+### Dashboard de Monitoreo
+- `dashboard/app.py`: Interfaz Python/Flask con métricas del sistema.
+- Acceso a `logs/gestion_sb.db` para visualizar actividad.
+
+---
+
+## Capa 5: Design System (tokens)
+
+Ver archivo maestro: `styles/colores.css`
+Ver skill: `dashboard_layout`
+
+### Paleta de Colores Principal
+
+| Token | Valor | Uso |
+|---|---|---|
+| `--color-primary` | `#7c3aed` | Marca, botones principales, nav activo |
+| `--color-secondary` | `#f59e0b` | Acentos, destacados |
+| `--color-success` | `#10b981` | WhatsApp, estados OK |
+| `--color-error` | `#ef4444` | Errores, bajas |
+| `--color-bg` | `#f9fafb` | Fondo general |
+| `--color-surface` | `#ffffff` | Subplacas |
+
+### Tipografía
+
+| Tipografía | Variable | Uso obligatorio |
+|---|---|---|
+| Libre Baskerville | `--font-brand` | `h1`, `h2`, nombres de módulo |
+| Poppins | `--font-body` | Todo el cuerpo de texto |

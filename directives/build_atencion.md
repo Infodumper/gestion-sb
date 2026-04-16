@@ -1,5 +1,5 @@
-# Directiva: CRM (Atención Premium)
-> **Skills Asociados:** `premium_attention`, `client_manager`, `client_profiler`, `sales_manager`
+## Directiva: CRM (Atención Premium)
+> **Skills Asociados:** [[Skills/premium_attention/SKILL|premium_attention]], [[Skills/client_profiler/SKILL|client_profiler]], [[Skills/client_manager/SKILL|client_manager]]
 
 ## Capa 1: Directiva (Objetivo y Alcance)
 

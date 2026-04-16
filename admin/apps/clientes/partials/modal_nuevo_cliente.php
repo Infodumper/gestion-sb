@@ -3,8 +3,9 @@
     <div class="max-w-2xl w-full card-premium overflow-hidden animate-in fade-in zoom-in duration-300">
         <div class="modal-header-premium">
             <h2 class="modal-title-premium italic">Nuevo Cliente</h2>
-            <!-- Close Button -->
-            <button type="button" onclick="closeClientModal()" class="btn-close-premium" title="Cerrar">&times;</button>
+            <button type="button" onclick="closeClientModal()" class="btn-close-premium group" title="Cerrar">
+                <svg class="w-6 h-6 transition-transform group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
         </div>
 
         <form id="formNuevoCliente" class="modal-form-container p-4 sm:p-8 space-y-4 sm:space-y-6">
@@ -60,8 +61,9 @@
             </div>
 
             <div class="pt-4 sm:pt-6 border-t border-gray-100 mt-2">
-                <button type="submit" id="btnGuardar" class="w-full btn-premium text-lg sm:text-xl">
-                    GUARDAR CLIENTE 📁
+                <button type="submit" id="btnGuardar" class="w-full btn-premium flex items-center justify-center gap-3 text-lg py-5">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                    <span>GUARDAR CLIENTE</span>
                 </button>
             </div>
         </form>
@@ -69,86 +71,71 @@
 </div>
 
 <script>
+// ── Modal Nuevo Cliente — funciones públicas ───────────────────────────
+
 // Validación dinámica de Teléfono duplicado
-document.getElementById('inputTelNuevo').addEventListener('input', function(e) {
-    let t = this.value.replace(/[^0-9]/g, '');
-    let w = document.getElementById('telWarningNuevo');
-    
+document.getElementById('inputTelNuevo').addEventListener('input', function() {
+    const t = this.value.replace(/[^0-9]/g, '');
+    const w = document.getElementById('telWarningNuevo');
     if (t.length > 6) {
-        const isInsideApps = window.location.pathname.includes('apps/clientes');
-        const ajaxPath = isInsideApps ? 'ajax_check_duplicate.php' : 'apps/clientes/ajax_check_duplicate.php';
-        
-        fetch(ajaxPath + '?telefono=' + t)
+        fetch('ajax_check_duplicate.php?telefono=' + t)
         .then(r => r.json())
         .then(d => {
             if (d.exists) {
-                w.innerText = '⚠️ Ojo: Este teléfono ya lo tiene ' + d.nombre;
+                w.textContent = '⚠️ Este teléfono ya lo tiene ' + d.nombre;
                 w.classList.remove('hidden');
             } else {
                 w.classList.add('hidden');
             }
-        }).catch(e => console.error(e));
+        }).catch(() => w.classList.add('hidden'));
     } else {
         w.classList.add('hidden');
     }
 });
 
-function openClientModal() {
+function abrirModalNuevo() {
     document.getElementById('modalNuevoCliente').classList.remove('hidden');
-    document.body.classList.add('overflow-hidden');
+    document.body.style.overflow = 'hidden';
 }
 
-function closeClientModal() {
+function cerrarModalNuevo() {
     document.getElementById('modalNuevoCliente').classList.add('hidden');
-    document.body.classList.remove('overflow-hidden');
+    document.body.style.overflow = '';
 }
 
-document.getElementById('formNuevoCliente').addEventListener('submit', function(e) {
+// Alias de compatibilidad
+function openClientModal() { abrirModalNuevo(); }
+function closeClientModal() { cerrarModalNuevo(); }
+
+document.getElementById('formNuevoCliente').addEventListener('submit', async function(e) {
     e.preventDefault();
     const btn = document.getElementById('btnGuardar');
     btn.disabled = true;
-    btn.innerText = 'GUARDANDO... ⏳';
+    btn.textContent = 'Guardando...';
 
-    const formData = new FormData(this);
-    const isInsideApps = window.location.pathname.includes('apps/clientes');
-    const ajaxPath = isInsideApps ? 'ajax_save_client.php' : 'apps/clientes/ajax_save_client.php';
+    try {
+        const res  = await fetch('ajax_save_client.php', { method: 'POST', body: new FormData(this) });
+        const json = await res.json();
 
-    fetch(ajaxPath, {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        if (!response.ok) throw new Error('Error en el servidor');
-        return response.json();
-    })
-    .then(data => {
-        if(data.success) {
-            Swal.fire({
-                title: '¡Éxito!',
-                text: data.message,
+        if (json.status === 'ok') {
+            await Swal.fire({
                 icon: 'success',
-                confirmButtonColor: '#00a876'
-            }).then(() => {
-                closeClientModal();
-                this.reset();
-                if (isInsideApps) location.reload();
+                title: '¡Cliente registrado!',
+                text: json.message,
+                timer: 1800,
+                showConfirmButton: false,
             });
+            cerrarModalNuevo();
+            this.reset();
+            location.reload();
         } else {
-            Swal.fire({
-                title: 'Atención',
-                text: data.message,
-                icon: 'warning',
-                confirmButtonColor: '#00a876'
-            });
+            Swal.fire({ icon: 'warning', title: 'Atención', text: json.message, confirmButtonText: 'Entendido' });
         }
+    } catch (err) {
+        Swal.fire({ icon: 'error', title: 'Error de red', text: 'No se pudo conectar al servidor' });
+    } finally {
         btn.disabled = false;
-        btn.innerText = 'GUARDAR CLIENTE 📁';
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');
-        btn.disabled = false;
-        btn.innerText = 'GUARDAR CLIENTE 📁';
-    });
+        btn.textContent = 'Guardar cliente';
+    }
 });
 </script>
